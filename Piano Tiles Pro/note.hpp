@@ -231,8 +231,7 @@ public:
 		else {
 			return (status == 3) || (
 				(status == 0 || status == 1) && (perfect_hit_time + duration - GameWindow::CURRENT_TIME > GameWindow::HOLD_NOTE_END_LIMIT)
-				);
+			);
 		}
 	}
-
 };
