@@ -72,13 +72,21 @@ public:
 				GameWindow::NOTE_COLOR[is_paused].r,
 				GameWindow::NOTE_COLOR[is_paused].g,
 				GameWindow::NOTE_COLOR[is_paused].b,
-				GameWindow::NOTE_COLOR[is_paused].a - std::max(0.0, GameWindow::NOTE_COLOR[is_paused].a / GameWindow::GOOD_LIMIT*(GameWindow::CURRENT_TIME-perfect_hit_time))
+				std::max(
+					0.0,
+					GameWindow::NOTE_COLOR[is_paused].a -
+					std::max(0.0, GameWindow::NOTE_COLOR[is_paused].a / GameWindow::GOOD_LIMIT*(GameWindow::CURRENT_TIME-perfect_hit_time))
+				)
 			));
 			r.setOutlineColor(sf::Color(
 				GameWindow::SYNC_COLOR[is_paused].r,
 				GameWindow::SYNC_COLOR[is_paused].g,
 				GameWindow::SYNC_COLOR[is_paused].b,
-				GameWindow::SYNC_COLOR[is_paused].a - std::max(0.0, GameWindow::SYNC_COLOR[is_paused].a / GameWindow::GOOD_LIMIT * (GameWindow::CURRENT_TIME - perfect_hit_time))
+				std::max(
+					0.0,
+					GameWindow::SYNC_COLOR[is_paused].a -
+					std::max(0.0, GameWindow::SYNC_COLOR[is_paused].a / GameWindow::GOOD_LIMIT * (GameWindow::CURRENT_TIME - perfect_hit_time))
+				)
 			));
 		}
 		else {
@@ -135,7 +143,6 @@ public:
 			r.getGlobalBounds().height / 2.0f
 		);
 		if (status == 2) {
-			std::cout << "OK\n";
 			r.setPosition(sf::Vector2f(
 				GameWindow::VERTICAL_JUDGEMENT_LINE_POS[lane_num] + GameWindow::JUDGEMENT_LINE_SPACING / 2,
 				dist_from_judgement_line(actual_hit_time)

@@ -200,6 +200,8 @@ private:
         );
         score_text.setPosition(GameWindow::SCORE_POS);
 
+        set_text_position();
+
         window.draw(music_name_text);
         window.draw(general_level_text);
         window.draw(score_text);
@@ -332,7 +334,10 @@ public:
                 if (event.type == sf::Event::Closed) {
                     window.close();
                 }
-                if (event.type == sf::Event::KeyPressed) {
+                else if (event.type == sf::Event::Resized) {
+                    GameWindow::update_window_size(event.size.width, event.size.height);
+                }
+                else if (event.type == sf::Event::KeyPressed) {
                     switch (event.key.scancode)
                     {
                     case sf::Keyboard::Scan::R:
@@ -362,6 +367,7 @@ public:
                         break;
                     }
                 }
+                else;
             }
             if (!is_paused) {
                 if (GameWindow::CURRENT_TIME >= GameWindow::MUSIC_DIFFERENCE && !music_started) {

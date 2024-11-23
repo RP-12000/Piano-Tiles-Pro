@@ -140,7 +140,7 @@ public:
             switch (level)
             {
             case -1:
-                std::cout << "Keyboard Challenge v1.0.0, bye!\n";
+                std::cout << "Piano Tiles Pro v1.0.0, bye!\n";
                 system("pause");
                 return;
             case 0:
