@@ -8,28 +8,31 @@
 
 class Chart {
 private:
+    sf::RenderWindow window;
     sf::SoundBuffer buffer;
     sf::Sound music;
     std::vector<Lane> lanes;
     std::string music_name, general_level;
     sf::Font chart_font;
     sf::Text music_name_text, general_level_text, score_text, combo_text, game_paused_text, autoplay_indication_text, count_down_text;
-    sf::Text final_score_text, final_combo_text, final_acc_text, final_perfect_text, final_good_text, final_bad_text, final_miss_text, final_game_paused_text;
+    sf::Text 
+        final_score_text, final_combo_text, final_acc_text,
+        final_perfect_text, final_good_text, final_bad_text, final_miss_text, final_early_text, final_late_text,
+        final_game_paused_text;
     double chart_constant;
     double STATIC_TIMER;
     double note_count;
-    double total_miss, total_bad, total_good, total_perfect;
     double last_miss, last_bad, last_good, last_perfect;
     double max_combo, current_combo;
     double acc;
     int current_score;
     double total_good_until_last_miss, total_perfect_until_last_miss;
-    bool is_paused, is_game_over;
+    bool is_paused, is_game_over, is_autoplay;
     double pause_count_down_timer;
-    sf::Color progress_bar_color;
     
     std::vector<bool> visible_vertical_judgement_line;
     std::vector<bool> visible_horizontal_judgement_line;
+
     /*
     Split the string passed into the function by the spliting character
     By default the character is a space (' ')
@@ -55,10 +58,6 @@ private:
     }
 
     void reset_all_progress() {
-        total_miss = 0.0;
-        total_bad = 0.0;
-        total_good = 0.0;
-        total_perfect = 0.0;
         last_miss = 0.0;
         last_bad = 0.0;
         last_good = 0.0;
@@ -121,7 +120,7 @@ private:
         count_down_text.setPosition(GameWindow::GAME_PAUSED_POS);
     }
 
-    void update_screen(sf::RenderWindow& window, bool is_autoplay = false) {
+    void update_screen() {
         window.clear();
 
         for (int i = 0; i < 9; i++) {
@@ -130,23 +129,24 @@ private:
         for (int i = 0; i < 16; i++) {
             visible_horizontal_judgement_line[i] = false;
         }
-        for (Lane& l : lanes) {
-            std::vector<sf::RectangleShape> new_lane = l.to_rect(is_paused);
+        for (int i = 0; i < 16; i++) {
+            std::vector<sf::RectangleShape> new_lane = lanes[i].to_rect(is_paused);
             for (const sf::RectangleShape& n : new_lane) {
                 window.draw(n);
             }
-            if (l.is_visible()) {
-                visible_vertical_judgement_line[l.get_lane_num() % 8] = true;
-                visible_vertical_judgement_line[l.get_lane_num() % 8 + 1] = true;
-                visible_horizontal_judgement_line[l.get_lane_num()] = true;
+            if (lanes[i].is_visible()) {
+                visible_vertical_judgement_line[i % 8] = true;
+                visible_vertical_judgement_line[i % 8 + 1] = true;
+                visible_horizontal_judgement_line[i] = true;
             }
         }
+        
 
         sf::Color jc = GameWindow::JUDGEMENT_LINE_COLOR[is_paused][2];
-        if (total_miss + total_bad + total_good == 0) {
+        if (Lane::miss + Lane::bad + Lane::good == 0) {
             jc = GameWindow::JUDGEMENT_LINE_COLOR[is_paused][0];
         }
-        else if (total_miss + total_bad == 0) {
+        else if (Lane::miss + Lane::bad == 0) {
             jc = GameWindow::JUDGEMENT_LINE_COLOR[is_paused][1];
         }
         for (int i = 0; i < 9; i++) {
@@ -160,7 +160,6 @@ private:
                 window.draw(judgement, 2, sf::Lines);
             }
         }
-
         for (int i = 0; i < 16; i++) {
             if (visible_horizontal_judgement_line[i]) {
                 sf::Vertex judgement[2] = {
@@ -173,14 +172,14 @@ private:
             }
         }
 
-        if (total_miss > last_miss || total_bad > last_bad) {
-            total_good_until_last_miss = total_good;
-            total_perfect_until_last_miss = total_perfect;
+        if (Lane::miss > last_miss || Lane::bad > last_bad) {
+            total_good_until_last_miss = Lane::good;
+            total_perfect_until_last_miss = Lane::perfect;
         }
-        current_combo = total_good + total_perfect - total_good_until_last_miss - total_perfect_until_last_miss;
+        current_combo = Lane::good + Lane::perfect - total_good_until_last_miss - total_perfect_until_last_miss;
         max_combo = std::max(max_combo, current_combo);
 
-        acc = total_perfect / note_count + GameWindow::GOOD_SCORE_PERCENTAGE * total_good / note_count;
+        acc = Lane::perfect / note_count + GameWindow::GOOD_SCORE_PERCENTAGE * Lane::good / note_count;
         current_score = (int)std::round(
             1000000.0 * (acc * (1 - GameWindow::COMBO_PERCENTAGE) + max_combo / note_count * GameWindow::COMBO_PERCENTAGE)
         );
@@ -201,7 +200,6 @@ private:
         score_text.setPosition(GameWindow::SCORE_POS);
 
         set_text_position();
-
         window.draw(music_name_text);
         window.draw(general_level_text);
         window.draw(score_text);
@@ -226,7 +224,7 @@ private:
             GameWindow::PROGRESS_BAR_THICKNESS
         ));
         progress_bar.setPosition(sf::Vector2f(0, 0));
-        progress_bar.setFillColor(progress_bar_color);
+        progress_bar.setFillColor(GameWindow::PROGRESS_BAR_COLOR[is_paused]);
         window.draw(progress_bar);
         if (is_autoplay) {
             window.draw(autoplay_indication_text);
@@ -234,7 +232,7 @@ private:
         window.display();
     }
 
-    void draw_result_screen(sf::RenderWindow& window) {
+    void draw_result_screen() {
 
     }
 
@@ -308,9 +306,12 @@ public:
 
         reset_all_progress();
         init_text();
-        progress_bar_color = sf::Color::Cyan;
         visible_vertical_judgement_line.resize(9);
         visible_horizontal_judgement_line.resize(16);
+        window.setVisible(false);
+        window.create(sf::VideoMode(GameWindow::WINDOW_WIDTH, GameWindow::WINDOW_HEIGHT), music_name);
+        window.setFramerateLimit(GameWindow::WINDOW_FRAMERATE);
+        window.setKeyRepeatEnabled(false);
     }
 
     void restart() {
@@ -322,9 +323,9 @@ public:
     }
 
     void autoplay() {
-        sf::RenderWindow window(sf::VideoMode(GameWindow::WINDOW_WIDTH, GameWindow::WINDOW_HEIGHT), music_name);
-        window.setFramerateLimit(GameWindow::WINDOW_FRAMERATE);
+        window.setVisible(true);
         bool music_started = false;
+        is_autoplay = true;
         restart();
         while (window.isOpen())
         {
@@ -376,14 +377,12 @@ public:
                 }
             }
             if (GameWindow::CURRENT_TIME <= buffer.getDuration().asSeconds()) {
-                total_perfect = 0.0;
                 for (Lane& l : lanes) {
                     if (!is_paused) {
                         l.autoplay();
                     }
-                    total_perfect += l.get_perfect_count();
                 }
-                update_screen(window, true);
+                update_screen();
 
                 if (!is_paused) {
                     GameWindow::CURRENT_TIME += GameWindow::WINDOW_TIME_TICK;
@@ -391,15 +390,14 @@ public:
             }
             else {
                 is_game_over = true;
-                draw_result_screen(window);
+                draw_result_screen();
             }
         }
+        is_autoplay = false;
     }
 
     void run_game() {
-        sf::RenderWindow window(sf::VideoMode(GameWindow::WINDOW_WIDTH, GameWindow::WINDOW_HEIGHT), music_name);
-        window.setFramerateLimit(GameWindow::WINDOW_FRAMERATE);
-        window.setKeyRepeatEnabled(false);
+        window.setVisible(true);
         bool music_started = false;
         restart();
         while (window.isOpen())
@@ -468,30 +466,20 @@ public:
                         l.update();
                     }
                 }
-                total_miss = 0.0;
-                total_bad = 0.0;
-                total_good = 0.0;
-                total_perfect = 0.0;
-                for (Lane& l : lanes) {
-                    total_miss += l.get_miss_count();
-                    total_bad += l.get_bad_count();
-                    total_good += l.get_good_count();
-                    total_perfect += l.get_perfect_count();
-                }
-                update_screen(window);
+                update_screen();
                 
                 if (!is_paused) {
                     GameWindow::CURRENT_TIME += GameWindow::WINDOW_TIME_TICK;
-                    last_perfect = total_perfect;
-                    last_good = total_good;
-                    last_bad = total_bad;
-                    last_miss = total_miss;
+                    last_perfect = Lane::perfect;
+                    last_good = Lane::good;
+                    last_bad = Lane::bad;
+                    last_miss = Lane::miss;
                 }
             }
             else {
                 is_game_over = true;
                 window.clear();
-                draw_result_screen(window);
+                draw_result_screen();
                 window.display();
             }
         }

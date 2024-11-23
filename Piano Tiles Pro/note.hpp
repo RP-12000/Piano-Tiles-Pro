@@ -1,5 +1,5 @@
 #include "root.hpp"
-#include <algorithm>
+//#include <algorithm>
 #include <iostream>
 
 class Note {
@@ -103,13 +103,15 @@ public:
 				r.setOutlineColor(GameWindow::SYNC_COLOR[is_paused]);
 			}
 		}
-		r.setOrigin(sf::Vector2f(0, r.getGlobalBounds().height));
+		if (duration == 0 || lane_num < 8) {
+			r.setOrigin(sf::Vector2f(0, r.getGlobalBounds().height));
+		}
 		if (is_sync) {
 			r.setOutlineThickness(GameWindow::NOTE_OUTLINE_THICKNESS);
 		}
 		r.setPosition(
 			sf::Vector2f(
-				GameWindow::VERTICAL_JUDGEMENT_LINE_POS[lane_num] + GameWindow::JUDGEMENT_LINE_SPACING / 5,
+				GameWindow::VERTICAL_JUDGEMENT_LINE_POS[lane_num % 8] + GameWindow::JUDGEMENT_LINE_SPACING / 5,
 				dist_from_judgement_line()
 			)
 		);
@@ -144,13 +146,13 @@ public:
 		);
 		if (status == 2) {
 			r.setPosition(sf::Vector2f(
-				GameWindow::VERTICAL_JUDGEMENT_LINE_POS[lane_num] + GameWindow::JUDGEMENT_LINE_SPACING / 2,
+				GameWindow::VERTICAL_JUDGEMENT_LINE_POS[lane_num % 8] + GameWindow::JUDGEMENT_LINE_SPACING / 2,
 				dist_from_judgement_line(actual_hit_time)
 			));
 		}
 		else {
 			r.setPosition(sf::Vector2f(
-				GameWindow::VERTICAL_JUDGEMENT_LINE_POS[lane_num] + GameWindow::JUDGEMENT_LINE_SPACING / 2,
+				GameWindow::VERTICAL_JUDGEMENT_LINE_POS[lane_num % 8] + GameWindow::JUDGEMENT_LINE_SPACING / 2,
 				GameWindow::HORIZONTAL_JUDGEMENT_LINE_POS[lane_num / 8]
 			));
 		}

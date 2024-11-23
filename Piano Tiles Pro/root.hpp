@@ -1,4 +1,3 @@
-#pragma once
 #include <SFML/Graphics.hpp>
 #include <vector>
 
@@ -53,6 +52,7 @@ public:
 	
 	static const std::vector<sf::Color> NOTE_COLOR;
 	static const std::vector<sf::Color> SYNC_COLOR;
+	static const std::vector<sf::Color> PROGRESS_BAR_COLOR;
 	static const std::vector<std::vector<sf::Color>> PARTICLE_COLOR;
 	static const std::vector<std::vector<sf::Color>> JUDGEMENT_LINE_COLOR;
 
@@ -160,6 +160,11 @@ const std::vector<sf::Color> GameWindow::NOTE_COLOR = {
 const std::vector<sf::Color> GameWindow::SYNC_COLOR = {
 	sf::Color(255,255,0),
 	sf::Color(255,255,0,GameWindow::PAUSED_OPACITY)
+};
+
+const std::vector<sf::Color> GameWindow::PROGRESS_BAR_COLOR = {
+	sf::Color::Cyan,
+	sf::Color(sf::Color::Cyan.r,sf::Color::Cyan.g,sf::Color::Cyan.b,GameWindow::PAUSED_OPACITY)
 };
 
 const std::vector<std::vector<sf::Color>> GameWindow::PARTICLE_COLOR = {

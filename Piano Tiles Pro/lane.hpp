@@ -5,22 +5,48 @@ private:
 	std::vector<Note> lane_notes;
 	bool visibility;
 	int left_pointer, right_pointer, active_note_pointer;
-	double miss, bad, good, perfect, early, late;
 	int lane_num;
 
+	void update_pointers() {
+		if (active_note_pointer < lane_notes.size() && active_note_pointer < right_pointer) {
+			if (!lane_notes[active_note_pointer].is_active()) {
+				if (lane_notes[active_note_pointer].get_status() == 0) {
+					perfect++;
+				}
+				else if (lane_notes[active_note_pointer].get_status() == 1) {
+					good++;
+				}
+				else if (lane_notes[active_note_pointer].get_status() == 2) {
+					bad++;
+				}
+				else if (lane_notes[active_note_pointer].get_status() == 3) {
+					miss++;
+				}
+				else;
+				active_note_pointer++;
+			}
+		}
+		if (left_pointer < lane_notes.size()) {
+			if (lane_notes[left_pointer].visiblility_status() == 2) {
+				left_pointer++;
+			}
+		}
+		if (right_pointer < lane_notes.size()) {
+			if (lane_notes[right_pointer].visiblility_status() == 1) {
+				right_pointer++;
+			}
+		}
+	}
+
 public:
+	static double miss, bad, good, perfect, early, late;
+
 	Lane(int l, sf::Keyboard::Scancode c) {
 		lane_num = l;
 		lane_notes.clear();
 		left_pointer = 0;
 		right_pointer = 0;
 		active_note_pointer = 0;
-		miss = 0;
-		bad = 0;
-		good = 0;
-		perfect = 0;
-		early = 0;
-		late = 0;
 		visibility = true;
 	}
 
@@ -41,68 +67,21 @@ public:
 				lane_notes[active_note_pointer].judge();
 			}
 		}
-		if (active_note_pointer < lane_notes.size() && active_note_pointer < right_pointer) {
-			if (!lane_notes[active_note_pointer].is_active()) {
-				if (lane_notes[active_note_pointer].get_status() == 0) {
-					perfect++;
-				}
-				else if (lane_notes[active_note_pointer].get_status() == 1) {
-					good++;
-				}
-				else if (lane_notes[active_note_pointer].get_status() == 2) {
-					bad++;
-				}
-				else if (lane_notes[active_note_pointer].get_status() == 3) {
-					miss++;
-				}
-				else;
-				active_note_pointer++;
-			}
-		}
-		if (left_pointer < lane_notes.size()) {
-			if (lane_notes[left_pointer].visiblility_status() == 2) {
-				left_pointer++;
-			}
-		}
-		if (right_pointer < lane_notes.size()) {
-			if (lane_notes[right_pointer].visiblility_status() == 1) {
-				right_pointer++;
-			}
-		}
+		update_pointers();
 	}
 
 	void update() {
 		if (active_note_pointer < right_pointer) {
 			lane_notes[active_note_pointer].judge();
 		}
-		if (active_note_pointer < lane_notes.size() && active_note_pointer < right_pointer) {
-			if (!lane_notes[active_note_pointer].is_active()) {
-				if (lane_notes[active_note_pointer].get_status() == 0) {
-					perfect++;
-				}
-				else if (lane_notes[active_note_pointer].get_status() == 1) {
-					good++;
-				}
-				else if (lane_notes[active_note_pointer].get_status() == 2) {
-					bad++;
-				}
-				else if (lane_notes[active_note_pointer].get_status() == 3) {
-					miss++;
-				}
-				else;
-				active_note_pointer++;
-			}
+		update_pointers();
+	}
+	
+	void autoplay() {
+		if (active_note_pointer < right_pointer) {
+			lane_notes[active_note_pointer].autoplay();
 		}
-		if (left_pointer < lane_notes.size()) {
-			if (lane_notes[left_pointer].visiblility_status() == 2) {
-				left_pointer++;
-			}
-		}
-		if (right_pointer < lane_notes.size()) {
-			if (lane_notes[right_pointer].visiblility_status() == 1) {
-				right_pointer++;
-			}
-		}
+		update_pointers();
 	}
 
 	std::vector<sf::RectangleShape> to_rect(bool is_paused) {
@@ -118,28 +97,8 @@ public:
 		return render_notes;
 	}
 
-	int get_lane_num() const {
-		return lane_num;
-	}
-
 	bool is_visible() const {
 		return visibility;
-	}
-
-	double get_miss_count() const {
-		return miss;
-	}
-
-	double get_bad_count() const {
-		return bad;
-	}
-
-	double get_good_count() const {
-		return good;
-	}
-
-	double get_perfect_count() const {
-		return perfect;
 	}
 
 	void restart() {
@@ -153,26 +112,11 @@ public:
 		for (Note& n : lane_notes)
 			n.reset();
 	}
-
-	void autoplay() {
-		if (active_note_pointer < right_pointer) {
-			lane_notes[active_note_pointer].autoplay();
-		}
-		if (active_note_pointer < lane_notes.size() && active_note_pointer < right_pointer) {
-			if (!lane_notes[active_note_pointer].is_active()) {
-				perfect++;
-				active_note_pointer++;
-			}
-		}
-		if (left_pointer < lane_notes.size()) {
-			if (lane_notes[left_pointer].visiblility_status() == 2) {
-				left_pointer++;
-			}
-		}
-		if (right_pointer < lane_notes.size()) {
-			if (lane_notes[right_pointer].visiblility_status() == 1) {
-				right_pointer++;
-			}
-		}
-	}
 };
+
+double Lane::miss = 0.0;
+double Lane::bad = 0.0;
+double Lane::good = 0.0;
+double Lane::early = 0.0;
+double Lane::late = 0.0;
+double Lane::perfect = 0.0;
