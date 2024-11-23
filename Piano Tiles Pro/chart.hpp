@@ -319,7 +319,7 @@ public:
         reset_all_progress();
     }
 
-    /*void autoplay() {
+    void autoplay() {
         sf::RenderWindow window(sf::VideoMode(GameWindow::WINDOW_WIDTH, GameWindow::WINDOW_HEIGHT), music_name);
         window.setFramerateLimit(GameWindow::WINDOW_FRAMERATE);
         bool music_started = false;
@@ -364,32 +364,31 @@ public:
                 }
             }
             if (!is_paused) {
-                if (timer >= GameWindow::MUSIC_DIFFERENCE && !music_started) {
+                if (GameWindow::CURRENT_TIME >= GameWindow::MUSIC_DIFFERENCE && !music_started) {
                     music.play();
                     music_started = true;
                 }
             }
-            if (timer <= buffer.getDuration().asSeconds()) {
+            if (GameWindow::CURRENT_TIME <= buffer.getDuration().asSeconds()) {
                 total_perfect = 0.0;
                 for (Lane& l : lanes) {
                     if (!is_paused) {
-                        l.update(timer);
-                        l.autoplay(timer);
+                        l.autoplay();
                     }
                     total_perfect += l.get_perfect_count();
                 }
                 update_screen(window, true);
 
                 if (!is_paused) {
-                    timer += GameWindow::WINDOW_TIME_TICK;
+                    GameWindow::CURRENT_TIME += GameWindow::WINDOW_TIME_TICK;
                 }
             }
             else {
-                is_paused = true;
+                is_game_over = true;
                 draw_result_screen(window);
             }
         }
-    }*/
+    }
 
     void run_game() {
         sf::RenderWindow window(sf::VideoMode(GameWindow::WINDOW_WIDTH, GameWindow::WINDOW_HEIGHT), music_name);

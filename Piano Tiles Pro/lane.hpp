@@ -154,17 +154,25 @@ public:
 			n.reset();
 	}
 
-	/*void autoplay(double current_time) {
-		if (right_pointer > active_note_pointer) {
-			if (lane_notes[active_note_pointer].perfect_hit_time - current_time > 0) {
-				return;
-			}
-			else {
-				lane_notes[active_note_pointer].status = 0;
-				lane_notes[active_note_pointer].actual_hit_time = current_time;
+	void autoplay() {
+		if (active_note_pointer < right_pointer) {
+			lane_notes[active_note_pointer].autoplay();
+		}
+		if (active_note_pointer < lane_notes.size() && active_note_pointer < right_pointer) {
+			if (!lane_notes[active_note_pointer].is_active()) {
 				perfect++;
 				active_note_pointer++;
 			}
 		}
-	}*/
+		if (left_pointer < lane_notes.size()) {
+			if (lane_notes[left_pointer].visiblility_status() == 2) {
+				left_pointer++;
+			}
+		}
+		if (right_pointer < lane_notes.size()) {
+			if (lane_notes[right_pointer].visiblility_status() == 1) {
+				right_pointer++;
+			}
+		}
+	}
 };

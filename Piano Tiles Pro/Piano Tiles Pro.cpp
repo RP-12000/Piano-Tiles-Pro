@@ -122,7 +122,7 @@ private:
             c.run_game();
         }
         else {
-            //c.autoplay();
+            c.autoplay();
         }
     }
 

@@ -60,10 +60,6 @@ public:
 		return status;
 	}
 
-	double get_actual_hit_time() const {
-		return actual_hit_time;
-	}
-
 	double get_duration() const {
 		return duration;
 	}
@@ -204,11 +200,20 @@ public:
 		return;
 	}
 
+	void autoplay() {
+		if (GameWindow::CURRENT_TIME >= perfect_hit_time) {
+			if (actual_hit_time == -1) {
+				status = 0;
+				actual_hit_time = GameWindow::CURRENT_TIME;
+			}
+		}
+	}
+
 	int visiblility_status() const {
 		if (duration == 0) {
 			if (
 				GameWindow::CURRENT_TIME >= perfect_hit_time - fall_time &&
-				GameWindow::CURRENT_TIME <= perfect_hit_time + GameWindow::GOOD_LIMIT && 
+				GameWindow::CURRENT_TIME <= perfect_hit_time + GameWindow::BAD_LIMIT && 
 				(is_active() || (!is_active() && has_particle()))
 			) {
 				return 1;
