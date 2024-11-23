@@ -12,6 +12,7 @@ public:
 
 	static const double PERFECT_LIMIT;
 	static const double GOOD_LIMIT;
+	static const double BAD_LIMIT;
 	static const double HOLD_NOTE_END_LIMIT;
 
 	static double FIRST_JUDGEMENT_LINE_X;
@@ -101,7 +102,8 @@ double GameWindow::CURRENT_TIME = 0.0;
 
 const double GameWindow::PERFECT_LIMIT = 0.08;
 const double GameWindow::GOOD_LIMIT = 0.16;
-const double GameWindow::HOLD_NOTE_END_LIMIT = 0.5;
+const double GameWindow::BAD_LIMIT = 0.18;
+const double GameWindow::HOLD_NOTE_END_LIMIT = 0.3;
 
 double GameWindow::FIRST_JUDGEMENT_LINE_X = WINDOW_WIDTH / 6;
 double GameWindow::JUDGEMENT_LINE_SPACING = WINDOW_WIDTH / 12;
@@ -164,10 +166,12 @@ const std::vector<std::vector<sf::Color>> GameWindow::PARTICLE_COLOR = {
 	{
 		sf::Color(0,255,0),
 		sf::Color(0,0,255),
+		sf::Color(255,0,0)
 	},
 	{
 		sf::Color(0,255,0,GameWindow::PAUSED_OPACITY),
 		sf::Color(0,0,255,GameWindow::PAUSED_OPACITY),
+		sf::Color(255,0,0,GameWindow::PAUSED_OPACITY)
 	}
 };
 

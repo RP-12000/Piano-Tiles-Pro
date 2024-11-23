@@ -18,8 +18,8 @@ private:
     double chart_constant;
     double STATIC_TIMER;
     double note_count;
-    double total_miss, total_good, total_perfect;
-    double last_miss, last_good, last_perfect;
+    double total_miss, total_bad, total_good, total_perfect;
+    double last_miss, last_bad, last_good, last_perfect;
     double max_combo, current_combo;
     double acc;
     int current_score;
@@ -56,9 +56,11 @@ private:
 
     void reset_all_progress() {
         total_miss = 0.0;
+        total_bad = 0.0;
         total_good = 0.0;
         total_perfect = 0.0;
         last_miss = 0.0;
+        last_bad = 0.0;
         last_good = 0.0;
         last_perfect = 0.0;
         max_combo = 0.0;
@@ -141,10 +143,10 @@ private:
         }
 
         sf::Color jc = GameWindow::JUDGEMENT_LINE_COLOR[is_paused][2];
-        if (total_miss + total_good == 0) {
+        if (total_miss + total_bad + total_good == 0) {
             jc = GameWindow::JUDGEMENT_LINE_COLOR[is_paused][0];
         }
-        else if (total_miss == 0) {
+        else if (total_miss + total_bad == 0) {
             jc = GameWindow::JUDGEMENT_LINE_COLOR[is_paused][1];
         }
         for (int i = 0; i < 9; i++) {
@@ -171,7 +173,7 @@ private:
             }
         }
 
-        if (total_miss > last_miss) {
+        if (total_miss > last_miss || total_bad > last_bad) {
             total_good_until_last_miss = total_good;
             total_perfect_until_last_miss = total_perfect;
         }
@@ -462,10 +464,12 @@ public:
                     }
                 }
                 total_miss = 0.0;
+                total_bad = 0.0;
                 total_good = 0.0;
                 total_perfect = 0.0;
                 for (Lane& l : lanes) {
                     total_miss += l.get_miss_count();
+                    total_bad += l.get_bad_count();
                     total_good += l.get_good_count();
                     total_perfect += l.get_perfect_count();
                 }
@@ -473,9 +477,10 @@ public:
                 
                 if (!is_paused) {
                     GameWindow::CURRENT_TIME += GameWindow::WINDOW_TIME_TICK;
-                    last_good = total_good;
-                    last_miss = total_miss;
                     last_perfect = total_perfect;
+                    last_good = total_good;
+                    last_bad = total_bad;
+                    last_miss = total_miss;
                 }
             }
             else {

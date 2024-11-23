@@ -5,7 +5,7 @@ private:
 	std::vector<Note> lane_notes;
 	bool visibility;
 	int left_pointer, right_pointer, active_note_pointer;
-	double miss, good, perfect, early, late;
+	double miss, bad, good, perfect, early, late;
 	int lane_num;
 
 public:
@@ -16,13 +16,14 @@ public:
 		right_pointer = 0;
 		active_note_pointer = 0;
 		miss = 0;
+		bad = 0;
 		good = 0;
 		perfect = 0;
 		early = 0;
 		late = 0;
 		visibility = true;
 	}
-	
+
 	void add_note(Note n) {
 		lane_notes.push_back(n);
 	}
@@ -49,6 +50,9 @@ public:
 					good++;
 				}
 				else if (lane_notes[active_note_pointer].get_status() == 2) {
+					bad++;
+				}
+				else if (lane_notes[active_note_pointer].get_status() == 3) {
 					miss++;
 				}
 				else;
@@ -80,6 +84,9 @@ public:
 					good++;
 				}
 				else if (lane_notes[active_note_pointer].get_status() == 2) {
+					bad++;
+				}
+				else if (lane_notes[active_note_pointer].get_status() == 3) {
 					miss++;
 				}
 				else;
@@ -101,8 +108,10 @@ public:
 	std::vector<sf::RectangleShape> to_rect(bool is_paused) {
 		std::vector<sf::RectangleShape> render_notes;
 		for (int i = left_pointer; i < right_pointer; i++) {
-			render_notes.push_back(lane_notes[i].toRect());
-			if(lane_notes[i].has_particle()) {
+			if (lane_notes[i].has_rect()) {
+				render_notes.push_back(lane_notes[i].toRect());
+			}
+			if (lane_notes[i].has_particle()) {
 				render_notes.push_back(lane_notes[i].toParticle());
 			}
 		}
@@ -121,6 +130,10 @@ public:
 		return miss;
 	}
 
+	double get_bad_count() const {
+		return bad;
+	}
+
 	double get_good_count() const {
 		return good;
 	}
@@ -134,6 +147,7 @@ public:
 		active_note_pointer = 0;
 		right_pointer = 0;
 		miss = 0.0;
+		bad = 0.0;
 		good = 0.0;
 		perfect = 0.0;
 		for (Note& n : lane_notes)

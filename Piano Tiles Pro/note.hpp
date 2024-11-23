@@ -8,7 +8,29 @@ private:
 	double perfect_hit_time, fall_time, duration, note_height;
 	bool is_sync;
 	double actual_hit_time = -1;
-	int status = 3;
+	
+	int status = 4;
+
+	double dist_from_judgement_line(double time = GameWindow::CURRENT_TIME) {
+		double dist;
+		if (duration != 0) {
+			dist = std::max(
+				(GameWindow::WINDOW_HEIGHT - GameWindow::JUDGEMENT_LINE_SPACING) *
+				(perfect_hit_time - time) / fall_time,
+				0.0
+			);
+		}
+		else {
+			dist =
+				(GameWindow::WINDOW_HEIGHT - GameWindow::JUDGEMENT_LINE_SPACING + GameWindow::TAP_NOTE_HEIGHT * 0.5) *
+				(perfect_hit_time - time) / fall_time - 0.5 * GameWindow::TAP_NOTE_HEIGHT;
+		}
+		if (lane_num < 8) {
+			dist = -dist;
+		}
+		dist += GameWindow::HORIZONTAL_JUDGEMENT_LINE_POS[lane_num/8];
+		return dist;
+	}
 
 public:
 	Note(double p, int l, double f, double d, double fall_time_ratio, bool s = false) {
@@ -30,7 +52,7 @@ public:
 	}
 
 	void reset() {
-		status = 3;
+		status = 4;
 		actual_hit_time = -1;
 	}
 
@@ -46,19 +68,7 @@ public:
 		return duration;
 	}
 
-	sf::RectangleShape toRect(bool is_paused = false) const {
-		double dist_from_judgement_line;
-		if (duration != 0) {
-			dist_from_judgement_line =
-				(GameWindow::WINDOW_HEIGHT - GameWindow::JUDGEMENT_LINE_SPACING) *
-				(perfect_hit_time - GameWindow::CURRENT_TIME) / fall_time;
-			dist_from_judgement_line = std::max(dist_from_judgement_line, 0.0);
-		}
-		else {
-			dist_from_judgement_line =
-				(GameWindow::WINDOW_HEIGHT - GameWindow::JUDGEMENT_LINE_SPACING + GameWindow::TAP_NOTE_HEIGHT * 0.5) *
-				(perfect_hit_time - GameWindow::CURRENT_TIME) / fall_time - 0.5 * GameWindow::TAP_NOTE_HEIGHT;
-		}
+	sf::RectangleShape toRect(bool is_paused = false) {
 		sf::RectangleShape r;
 		if (duration == 0) {
 			r.setSize(sf::Vector2f(GameWindow::NOTE_WIDTH, GameWindow::TAP_NOTE_HEIGHT));
@@ -80,7 +90,7 @@ public:
 				GameWindow::NOTE_WIDTH,
 				note_height - std::max(0.0, note_height / duration * (GameWindow::CURRENT_TIME - perfect_hit_time))
 			));
-			if (status == 2) {
+			if (status == 3) {
 				r.setFillColor(GameWindow::NOTE_COLOR[1]);
 				r.setOutlineColor(GameWindow::SYNC_COLOR[1]);
 			}
@@ -93,26 +103,16 @@ public:
 		if (is_sync) {
 			r.setOutlineThickness(GameWindow::NOTE_OUTLINE_THICKNESS);
 		}
-		if (lane_num>=8) {
-			r.setPosition(
-				sf::Vector2f(
-					GameWindow::VERTICAL_JUDGEMENT_LINE_POS[lane_num] + GameWindow::JUDGEMENT_LINE_SPACING / 5,
-					GameWindow::HORIZONTAL_JUDGEMENT_LINE_POS[1] + dist_from_judgement_line
-				)
-			);
-		}
-		else {
-			r.setPosition(
-				sf::Vector2f(
-					GameWindow::VERTICAL_JUDGEMENT_LINE_POS[lane_num] + GameWindow::JUDGEMENT_LINE_SPACING / 5,
-					GameWindow::HORIZONTAL_JUDGEMENT_LINE_POS[0] - dist_from_judgement_line
-				)
-			);
-		}
+		r.setPosition(
+			sf::Vector2f(
+				GameWindow::VERTICAL_JUDGEMENT_LINE_POS[lane_num] + GameWindow::JUDGEMENT_LINE_SPACING / 5,
+				dist_from_judgement_line()
+			)
+		);
 		return r;
 	}
 
-	sf::RectangleShape toParticle(bool is_paused = false) const {
+	sf::RectangleShape toParticle(bool is_paused = false) {
 		double current_time = GameWindow::CURRENT_TIME;
 		while (current_time > actual_hit_time + GameWindow::NOTE_LINGERING_TIME) {
 			current_time -= GameWindow::NOTE_LINGERING_TIME;
@@ -138,10 +138,19 @@ public:
 			r.getGlobalBounds().width / 2.0f,
 			r.getGlobalBounds().height / 2.0f
 		);
-		r.setPosition(sf::Vector2f(
-			GameWindow::VERTICAL_JUDGEMENT_LINE_POS[lane_num] + GameWindow::JUDGEMENT_LINE_SPACING / 2,
-			GameWindow::HORIZONTAL_JUDGEMENT_LINE_POS[lane_num / 8]
-		));
+		if (status == 2) {
+			std::cout << "OK\n";
+			r.setPosition(sf::Vector2f(
+				GameWindow::VERTICAL_JUDGEMENT_LINE_POS[lane_num] + GameWindow::JUDGEMENT_LINE_SPACING / 2,
+				dist_from_judgement_line(actual_hit_time)
+			));
+		}
+		else {
+			r.setPosition(sf::Vector2f(
+				GameWindow::VERTICAL_JUDGEMENT_LINE_POS[lane_num] + GameWindow::JUDGEMENT_LINE_SPACING / 2,
+				GameWindow::HORIZONTAL_JUDGEMENT_LINE_POS[lane_num / 8]
+			));
+		}
 		return r;
 	}
 
@@ -149,9 +158,12 @@ public:
 		if(duration==0){
 			if (e.type == sf::Event::KeyPressed) {
 				double difference = perfect_hit_time - GameWindow::CURRENT_TIME;
-				if (std::abs(difference) <= GameWindow::GOOD_LIMIT) {
+				if (std::abs(difference) <= GameWindow::BAD_LIMIT) {
 					actual_hit_time = GameWindow::CURRENT_TIME;
-					if (std::abs(difference) > GameWindow::PERFECT_LIMIT) {
+					if (std::abs(difference) > GameWindow::GOOD_LIMIT) {
+						status = 2;
+					}
+					else if (std::abs(difference) > GameWindow::PERFECT_LIMIT) {
 						status = 1;
 					}
 					else {
@@ -175,8 +187,8 @@ public:
 				}
 			}
 			else if (e.type == sf::Event::KeyReleased) {
-				if (duration + perfect_hit_time - GameWindow::CURRENT_TIME > GameWindow::HOLD_NOTE_END_LIMIT && status != 3) {
-					status = 2;
+				if (duration + perfect_hit_time - GameWindow::CURRENT_TIME > GameWindow::HOLD_NOTE_END_LIMIT && status != 4) {
+					status = 3;
 					actual_hit_time = -1;
 				}
 			}
@@ -186,8 +198,8 @@ public:
 	}
 
 	void judge() {
-		if (GameWindow::CURRENT_TIME - perfect_hit_time > GameWindow::GOOD_LIMIT && status == 3) {
-			status = 2;
+		if (GameWindow::CURRENT_TIME - perfect_hit_time > GameWindow::BAD_LIMIT && status == 4) {
+			status = 3;
 		}
 		return;
 	}
@@ -196,8 +208,9 @@ public:
 		if (duration == 0) {
 			if (
 				GameWindow::CURRENT_TIME >= perfect_hit_time - fall_time &&
-				GameWindow::CURRENT_TIME <= perfect_hit_time + GameWindow::GOOD_LIMIT
-				) {
+				GameWindow::CURRENT_TIME <= perfect_hit_time + GameWindow::GOOD_LIMIT && 
+				(is_active() || (!is_active() && has_particle()))
+			) {
 				return 1;
 			}
 			else if (GameWindow::CURRENT_TIME < perfect_hit_time - fall_time) { return 0; }
@@ -214,24 +227,33 @@ public:
 			else { return 2; }
 		}
 	}
+	
+	bool is_active() const {
+		if (duration == 0) {
+			return (status == 4);
+		}
+		else {
+			return (status == 4) || (
+				(status == 0 || status == 1) && (perfect_hit_time + duration - GameWindow::CURRENT_TIME > GameWindow::HOLD_NOTE_END_LIMIT)
+			);
+		}
+	}
 
 	bool has_particle() const {
 		if (duration == 0) {
-			return (status == 0 || status == 1) && (GameWindow::CURRENT_TIME - perfect_hit_time < GameWindow::NOTE_LINGERING_TIME);
+			return (status == 0 || status == 1 || status == 2) && (GameWindow::CURRENT_TIME - actual_hit_time < GameWindow::NOTE_LINGERING_TIME);
 		}
 		else {
 			return (status == 0 || status == 1);
 		}
 	}
 
-	bool is_active() const {
+	bool has_rect() const {
 		if (duration == 0) {
-			return (status == 3);
+			return !has_particle();
 		}
 		else {
-			return (status == 3) || (
-				(status == 0 || status == 1) && (perfect_hit_time + duration - GameWindow::CURRENT_TIME > GameWindow::HOLD_NOTE_END_LIMIT)
-			);
+			return true;
 		}
 	}
 };
