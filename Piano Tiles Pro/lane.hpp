@@ -60,7 +60,7 @@ public:
 
 	void update(sf::Event e) {
 		if (active_note_pointer < right_pointer) {
-			if (e.key.scancode == GameWindow::ACTIVATION_KEYS[lane_num]) {
+			if (e.key.scancode == GameWindow::Activation::ACTIVATION_KEYS[lane_num]) {
 				lane_notes[active_note_pointer].judge(e);
 			}
 			else {

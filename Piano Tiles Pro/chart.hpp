@@ -68,13 +68,13 @@ private:
         current_score = 0.0;
         total_good_until_last_miss = 0.0;
         total_perfect_until_last_miss = 0.0;
-        GameWindow::CURRENT_TIME = STATIC_TIMER;
+        GameWindow::Time::CURRENT_TIME = STATIC_TIMER;
         is_paused = false;
-        pause_count_down_timer = - GameWindow::WINDOW_TIME_TICK;
+        pause_count_down_timer = - GameWindow::Time::WINDOW_TIME_TICK;
     }
 
     void init_text() {
-        chart_font.loadFromFile(GameWindow::TEXT_FONT_DIR + GameWindow::TEXT_FONT_TYPE);
+        chart_font.loadFromFile(GameWindow::TextFont::TEXT_FONT_DIR + GameWindow::TextFont::TEXT_FONT_TYPE);
 
         music_name_text.setFont(chart_font);
         general_level_text.setFont(chart_font);
@@ -86,8 +86,8 @@ private:
 
         music_name_text.setString(music_name);
         general_level_text.setString(general_level + std::to_string((int)(chart_constant)));
-        game_paused_text.setString(GameWindow::GAME_PAUSE_VERDICT);
-        autoplay_indication_text.setString("[AUTOPLAY]");
+        game_paused_text.setString(GameWindow::GameVerdicts::GAME_PAUSE_VERDICT);
+        autoplay_indication_text.setString(GameWindow::GameVerdicts::AUTOPLAY_VERDICT);
 
         general_level_text.setOrigin(sf::Vector2f(
             general_level_text.getGlobalBounds().width, 0
@@ -106,18 +106,18 @@ private:
     }
 
     void set_text_position() {
-        music_name_text.setCharacterSize(GameWindow::TEXT_FONT_SIZE);
-        general_level_text.setCharacterSize(GameWindow::TEXT_FONT_SIZE);
-        score_text.setCharacterSize(GameWindow::TEXT_FONT_SIZE);
-        combo_text.setCharacterSize(GameWindow::TEXT_FONT_SIZE);
-        game_paused_text.setCharacterSize(GameWindow::TEXT_FONT_SIZE - 5);
-        autoplay_indication_text.setCharacterSize(GameWindow::TEXT_FONT_SIZE);
-        count_down_text.setCharacterSize(GameWindow::TEXT_FONT_SIZE);
+        music_name_text.setCharacterSize(GameWindow::TextFont::TEXT_FONT_SIZE);
+        general_level_text.setCharacterSize(GameWindow::TextFont::TEXT_FONT_SIZE);
+        score_text.setCharacterSize(GameWindow::TextFont::TEXT_FONT_SIZE);
+        combo_text.setCharacterSize(GameWindow::TextFont::TEXT_FONT_SIZE);
+        game_paused_text.setCharacterSize(GameWindow::TextFont::TEXT_FONT_SIZE - 5);
+        autoplay_indication_text.setCharacterSize(GameWindow::TextFont::TEXT_FONT_SIZE);
+        count_down_text.setCharacterSize(GameWindow::TextFont::TEXT_FONT_SIZE);
 
-        music_name_text.setPosition(GameWindow::SONG_NAME_POS);
-        general_level_text.setPosition(GameWindow::DIFFICULTY_POS);
-        autoplay_indication_text.setPosition(GameWindow::AUTOPLAY_INDICATION_POS);
-        count_down_text.setPosition(GameWindow::GAME_PAUSED_POS);
+        music_name_text.setPosition(GameWindow::TextPositions::SONG_NAME_POS);
+        general_level_text.setPosition(GameWindow::TextPositions::DIFFICULTY_POS);
+        autoplay_indication_text.setPosition(GameWindow::TextPositions::AUTOPLAY_INDICATION_POS);
+        count_down_text.setPosition(GameWindow::TextPositions::GAME_PAUSED_POS);
     }
 
     void update_screen() {
@@ -142,18 +142,18 @@ private:
         }
         
 
-        sf::Color jc = GameWindow::JUDGEMENT_LINE_COLOR[is_paused][2];
+        sf::Color jc = GameWindow::Colors::JUDGEMENT_LINE_COLOR[is_paused][2];
         if (Lane::miss + Lane::bad + Lane::good == 0) {
-            jc = GameWindow::JUDGEMENT_LINE_COLOR[is_paused][0];
+            jc = GameWindow::Colors::JUDGEMENT_LINE_COLOR[is_paused][0];
         }
         else if (Lane::miss + Lane::bad == 0) {
-            jc = GameWindow::JUDGEMENT_LINE_COLOR[is_paused][1];
+            jc = GameWindow::Colors::JUDGEMENT_LINE_COLOR[is_paused][1];
         }
         for (int i = 0; i < 9; i++) {
             if (visible_vertical_judgement_line[i]) {
                 sf::Vertex judgement[2] = {
-                    sf::Vertex(sf::Vector2f(GameWindow::VERTICAL_JUDGEMENT_LINE_POS[i],-1)),
-                    sf::Vertex(sf::Vector2f(GameWindow::VERTICAL_JUDGEMENT_LINE_POS[i], GameWindow::WINDOW_HEIGHT + 1))
+                    sf::Vertex(sf::Vector2f(GameWindow::Dimentions::VERTICAL_JUDGEMENT_LINE_POS[i],-1)),
+                    sf::Vertex(sf::Vector2f(GameWindow::Dimentions::VERTICAL_JUDGEMENT_LINE_POS[i], GameWindow::Dimentions::WINDOW_HEIGHT + 1))
                 };
                 judgement[0].color = jc;
                 judgement[1].color = jc;
@@ -163,8 +163,8 @@ private:
         for (int i = 0; i < 16; i++) {
             if (visible_horizontal_judgement_line[i]) {
                 sf::Vertex judgement[2] = {
-                    sf::Vertex(sf::Vector2f(GameWindow::VERTICAL_JUDGEMENT_LINE_POS[i%8],GameWindow::HORIZONTAL_JUDGEMENT_LINE_POS[i/8])),
-                    sf::Vertex(sf::Vector2f(GameWindow::VERTICAL_JUDGEMENT_LINE_POS[i%8+1], GameWindow::HORIZONTAL_JUDGEMENT_LINE_POS[i/8]))
+                    sf::Vertex(sf::Vector2f(GameWindow::Dimentions::VERTICAL_JUDGEMENT_LINE_POS[i%8],GameWindow::Dimentions::HORIZONTAL_JUDGEMENT_LINE_POS[i/8])),
+                    sf::Vertex(sf::Vector2f(GameWindow::Dimentions::VERTICAL_JUDGEMENT_LINE_POS[i%8+1], GameWindow::Dimentions::HORIZONTAL_JUDGEMENT_LINE_POS[i/8]))
                 };
                 judgement[0].color = jc;
                 judgement[1].color = jc;
@@ -179,9 +179,9 @@ private:
         current_combo = Lane::good + Lane::perfect - total_good_until_last_miss - total_perfect_until_last_miss;
         max_combo = std::max(max_combo, current_combo);
 
-        acc = Lane::perfect / note_count + GameWindow::GOOD_SCORE_PERCENTAGE * Lane::good / note_count;
+        acc = Lane::perfect / note_count + GameWindow::ScoreCalculations::GOOD_SCORE_PERCENTAGE * Lane::good / note_count;
         current_score = (int)std::round(
-            1000000.0 * (acc * (1 - GameWindow::COMBO_PERCENTAGE) + max_combo / note_count * GameWindow::COMBO_PERCENTAGE)
+            1000000.0 * (acc * (1 - GameWindow::ScoreCalculations::COMBO_PERCENTAGE) + max_combo / note_count * GameWindow::ScoreCalculations::COMBO_PERCENTAGE)
         );
         int temp_cs = current_score;
         int count = 0;
@@ -197,15 +197,15 @@ private:
         score_text.setOrigin(
             score_text.getGlobalBounds().width, 0
         );
-        score_text.setPosition(GameWindow::SCORE_POS);
+        score_text.setPosition(GameWindow::TextPositions::SCORE_POS);
 
         set_text_position();
         window.draw(music_name_text);
         window.draw(general_level_text);
         window.draw(score_text);
-        if (current_combo >= GameWindow::COMBO_VISIBLE_LIMIT) {
+        if (current_combo >= GameWindow::ScoreCalculations::COMBO_VISIBLE_LIMIT) {
             combo_text.setString(std::to_string((int)current_combo) + " COMBO");
-            combo_text.setPosition(GameWindow::COMBO_POS);
+            combo_text.setPosition(GameWindow::TextPositions::COMBO_POS);
             window.draw(combo_text);
         }
         if (is_paused && pause_count_down_timer < 0) {
@@ -214,17 +214,17 @@ private:
         if (pause_count_down_timer >= 0) {
             count_down_text.setString(std::to_string((int)pause_count_down_timer + 1));
             window.draw(count_down_text);
-            pause_count_down_timer -= GameWindow::WINDOW_TIME_TICK;
+            pause_count_down_timer -= GameWindow::Time::WINDOW_TIME_TICK;
             if (pause_count_down_timer < 0) {
                 is_paused = false;
             }
         }
         sf::RectangleShape progress_bar(sf::Vector2f(
-            (GameWindow::CURRENT_TIME - STATIC_TIMER) / (buffer.getDuration().asSeconds() - STATIC_TIMER) * GameWindow::WINDOW_WIDTH,
-            GameWindow::PROGRESS_BAR_THICKNESS
+            (GameWindow::Time::CURRENT_TIME - STATIC_TIMER) / (buffer.getDuration().asSeconds() - STATIC_TIMER) * GameWindow::Dimentions::WINDOW_WIDTH,
+            GameWindow::Dimentions::PROGRESS_BAR_THICKNESS
         ));
         progress_bar.setPosition(sf::Vector2f(0, 0));
-        progress_bar.setFillColor(GameWindow::PROGRESS_BAR_COLOR[is_paused]);
+        progress_bar.setFillColor(GameWindow::Colors::PROGRESS_BAR_COLOR[is_paused]);
         window.draw(progress_bar);
         if (is_autoplay) {
             window.draw(autoplay_indication_text);
@@ -284,7 +284,7 @@ public:
         }
 
         for (int i = 0; i < 16; i++) {
-            lanes.push_back(Lane{ i, GameWindow::ACTIVATION_KEYS[i] });
+            lanes.push_back(Lane{ i, GameWindow::Activation::ACTIVATION_KEYS[i] });
         }
 
         for (int i = 0; i < note_count; i++) {
@@ -309,8 +309,8 @@ public:
         visible_vertical_judgement_line.resize(9);
         visible_horizontal_judgement_line.resize(16);
         window.setVisible(false);
-        window.create(sf::VideoMode(GameWindow::WINDOW_WIDTH, GameWindow::WINDOW_HEIGHT), music_name);
-        window.setFramerateLimit(GameWindow::WINDOW_FRAMERATE);
+        window.create(sf::VideoMode(GameWindow::Dimentions::WINDOW_WIDTH, GameWindow::Dimentions::WINDOW_HEIGHT), music_name);
+        window.setFramerateLimit(GameWindow::Time::WINDOW_FRAMERATE);
         window.setKeyRepeatEnabled(false);
     }
 
@@ -371,12 +371,12 @@ public:
                 else;
             }
             if (!is_paused) {
-                if (GameWindow::CURRENT_TIME >= GameWindow::MUSIC_DIFFERENCE && !music_started) {
+                if (GameWindow::Time::CURRENT_TIME >= GameWindow::JudgementLimits::MUSIC_DIFFERENCE && !music_started) {
                     music.play();
                     music_started = true;
                 }
             }
-            if (GameWindow::CURRENT_TIME <= buffer.getDuration().asSeconds()) {
+            if (GameWindow::Time::CURRENT_TIME <= buffer.getDuration().asSeconds()) {
                 for (Lane& l : lanes) {
                     if (!is_paused) {
                         l.autoplay();
@@ -385,7 +385,7 @@ public:
                 update_screen();
 
                 if (!is_paused) {
-                    GameWindow::CURRENT_TIME += GameWindow::WINDOW_TIME_TICK;
+                    GameWindow::Time::CURRENT_TIME += GameWindow::Time::WINDOW_TIME_TICK;
                 }
             }
             else {
@@ -455,12 +455,12 @@ public:
                 else;
             }
             if (!is_paused) {
-                if (GameWindow::CURRENT_TIME >= GameWindow::MUSIC_DIFFERENCE && !music_started) {
+                if (GameWindow::Time::CURRENT_TIME >= GameWindow::JudgementLimits::MUSIC_DIFFERENCE && !music_started) {
                     music.play();
                     music_started = true;
                 }
             }
-            if (GameWindow::CURRENT_TIME <= buffer.getDuration().asSeconds()) {
+            if (GameWindow::Time::CURRENT_TIME <= buffer.getDuration().asSeconds()) {
                 if (!has_updated) {
                     for (Lane& l : lanes) {
                         l.update();
@@ -469,7 +469,7 @@ public:
                 update_screen();
                 
                 if (!is_paused) {
-                    GameWindow::CURRENT_TIME += GameWindow::WINDOW_TIME_TICK;
+                    GameWindow::Time::CURRENT_TIME += GameWindow::Time::WINDOW_TIME_TICK;
                     last_perfect = Lane::perfect;
                     last_good = Lane::good;
                     last_bad = Lane::bad;
