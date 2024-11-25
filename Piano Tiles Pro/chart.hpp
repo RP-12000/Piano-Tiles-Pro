@@ -132,7 +132,7 @@ private:
         for (int i = 0; i < 16; i++) {
             std::vector<sf::RectangleShape> new_lane = lanes[i].to_rect(is_paused);
             for (const sf::RectangleShape& n : new_lane) {
-                GameWindow::window.draw(n);
+                window.draw(n);
             }
             if (lanes[i].is_visible()) {
                 visible_vertical_judgement_line[i % 8] = true;
@@ -168,7 +168,7 @@ private:
                 };
                 judgement[0].color = jc;
                 judgement[1].color = jc;
-                GameWindow::window.draw(judgement, 2, sf::Lines);
+                window.draw(judgement, 2, sf::Lines);
             }
         }
 
@@ -200,20 +200,20 @@ private:
         score_text.setPosition(GameWindow::TextPositions::SCORE_POS);
 
         set_text_position();
-        GameWindow::window.draw(music_name_text);
-        GameWindow::window.draw(general_level_text);
-        GameWindow::window.draw(score_text);
+        window.draw(music_name_text);
+        window.draw(general_level_text);
+        window.draw(score_text);
         if (current_combo >= GameWindow::ScoreCalculations::COMBO_VISIBLE_LIMIT) {
             combo_text.setString(std::to_string((int)current_combo) + " COMBO");
             combo_text.setPosition(GameWindow::TextPositions::COMBO_POS);
-            GameWindow::window.draw(combo_text);
+            window.draw(combo_text);
         }
         if (is_paused && pause_count_down_timer < 0) {
-            GameWindow::window.draw(game_paused_text);
+            window.draw(game_paused_text);
         }
         if (pause_count_down_timer >= 0) {
             count_down_text.setString(std::to_string((int)pause_count_down_timer + 1));
-            GameWindow::window.draw(count_down_text);
+            window.draw(count_down_text);
             pause_count_down_timer -= GameWindow::Time::WINDOW_TIME_TICK;
             if (pause_count_down_timer < 0) {
                 is_paused = false;
@@ -225,11 +225,11 @@ private:
         ));
         progress_bar.setPosition(sf::Vector2f(0, 0));
         progress_bar.setFillColor(GameWindow::Colors::PROGRESS_BAR_COLOR[is_paused]);
-        GameWindow::window.draw(progress_bar);
+        window.draw(progress_bar);
         if (is_autoplay) {
-            GameWindow::window.draw(autoplay_indication_text);
+            window.draw(autoplay_indication_text);
         }
-        GameWindow::window.display();
+        window.display();
     }
 
     void draw_result_screen() {
@@ -308,10 +308,10 @@ public:
         init_text();
         visible_vertical_judgement_line.resize(9);
         visible_horizontal_judgement_line.resize(16);
-        GameWindow::window.create(sf::VideoMode(GameWindow::Dimentions::WINDOW_WIDTH, GameWindow::Dimentions::WINDOW_HEIGHT), "Piano Tiles Pro");
-        GameWindow::window.setVisible(false);
-        GameWindow::window.setFramerateLimit(GameWindow::Time::WINDOW_FRAMERATE);
-        GameWindow::window.setKeyRepeatEnabled(false);
+        window.create(sf::VideoMode(GameWindow::Dimentions::WINDOW_WIDTH, GameWindow::Dimentions::WINDOW_HEIGHT), "Piano Tiles Pro");
+        window.setVisible(false);
+        window.setFramerateLimit(GameWindow::Time::WINDOW_FRAMERATE);
+        window.setKeyRepeatEnabled(false);
     }
 
     void restart() {

@@ -3,8 +3,6 @@
 
 class GameWindow {
 public:
-	static sf::RenderWindow window;
-
 	class Dimentions {
 	public:
 		static double WINDOW_WIDTH;
