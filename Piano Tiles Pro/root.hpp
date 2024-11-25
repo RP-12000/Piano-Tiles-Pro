@@ -3,6 +3,8 @@
 
 class GameWindow {
 public:
+	static sf::RenderWindow window;
+
 	class Dimentions {
 	public:
 		static double WINDOW_WIDTH;
@@ -20,19 +22,19 @@ public:
 
 	class Time {
 	public:
-		static unsigned int WINDOW_FRAMERATE;
-		static double WINDOW_TIME_TICK;
-		static double CURRENT_TIME;
+		inline static unsigned int WINDOW_FRAMERATE = 120;
+		inline static double WINDOW_TIME_TICK = 1.0 / (double)(GameWindow::Time::WINDOW_FRAMERATE);
+		inline static double CURRENT_TIME = 0.0;
 	};
 
 	class JudgementLimits {
 	public:
-		static const double PERFECT_LIMIT;
-		static const double GOOD_LIMIT;
-		static const double BAD_LIMIT;
-		static const double HOLD_NOTE_END_LIMIT;
-		static double NOTE_LINGERING_TIME;
-		static double MUSIC_DIFFERENCE;
+		inline static const double PERFECT_LIMIT = 0.08;
+		inline static const double GOOD_LIMIT = 0.16;
+		inline static const double BAD_LIMIT = 0.18;
+		inline static const double HOLD_NOTE_END_LIMIT = 0.3;
+		inline static const double NOTE_LINGERING_TIME = 0.6;
+		inline static double MUSIC_DIFFERENCE = -0.1;
 	};
 
 	class TextPositions {
@@ -47,22 +49,22 @@ public:
 
 	class TextFont {
 	public:
-		static unsigned int TEXT_FONT_SIZE;
-		static std::string TEXT_FONT_DIR;
-		static std::string TEXT_FONT_TYPE;
+		inline static unsigned int TEXT_FONT_SIZE = 30;
+		inline static std::string TEXT_FONT_DIR = "C:\\Windows\\Fonts\\";
+		inline static std::string TEXT_FONT_TYPE = "Arial.ttf";
 	};
 
 	class ScoreCalculations {
 	public:
-		static double COMBO_VISIBLE_LIMIT;
-		static double COMBO_PERCENTAGE;
-		static double GOOD_SCORE_PERCENTAGE;
+		inline static const double COMBO_VISIBLE_LIMIT = 3;
+		inline static const double COMBO_PERCENTAGE = 0.9;
+		inline static const double GOOD_SCORE_PERCENTAGE = 0.65;
 	};
 
 	class GameVerdicts {
 	public:
-		static const std::string GAME_PAUSE_VERDICT;
-		static const std::string AUTOPLAY_VERDICT;
+		inline static const std::string GAME_PAUSE_VERDICT = "Game Paused\nPress space to continue\nPress r to restart";
+		inline static const std::string AUTOPLAY_VERDICT = "[Autoplay]";
 	};
 
 	class Colors {
@@ -124,6 +126,7 @@ double GameWindow::Dimentions::HORIZONTAL_JUDGEMENT_SPACING = GameWindow::Diment
 double GameWindow::Dimentions::NOTE_WIDTH = GameWindow::Dimentions::JUDGEMENT_LINE_SPACING / 5 * 3;
 double GameWindow::Dimentions::TAP_NOTE_HEIGHT = GameWindow::Dimentions::WINDOW_HEIGHT / 108;
 double GameWindow::Dimentions::NOTE_OUTLINE_THICKNESS = -GameWindow::Dimentions::TAP_NOTE_HEIGHT / 5;
+double GameWindow::Dimentions::PROGRESS_BAR_THICKNESS = GameWindow::Dimentions::WINDOW_HEIGHT / 120;
 std::vector<double> GameWindow::Dimentions::VERTICAL_JUDGEMENT_LINE_POS = {
 	GameWindow::Dimentions::FIRST_JUDGEMENT_LINE_X + GameWindow::Dimentions::JUDGEMENT_LINE_SPACING * 0,
 	GameWindow::Dimentions::FIRST_JUDGEMENT_LINE_X + GameWindow::Dimentions::JUDGEMENT_LINE_SPACING * 1,
@@ -140,36 +143,12 @@ std::vector<double> GameWindow::Dimentions::HORIZONTAL_JUDGEMENT_LINE_POS = {
 	GameWindow::Dimentions::HORIZONTAL_JUDGEMENT_SPACING
 };
 
-unsigned int GameWindow::Time::WINDOW_FRAMERATE = 120;
-double GameWindow::Time::WINDOW_TIME_TICK = 1.0 / (double)(GameWindow::Time::WINDOW_FRAMERATE);
-double GameWindow::Time::CURRENT_TIME = 0.0;
-
-const double GameWindow::JudgementLimits::PERFECT_LIMIT = 0.08;
-const double GameWindow::JudgementLimits::GOOD_LIMIT = 0.16;
-const double GameWindow::JudgementLimits::BAD_LIMIT = 0.18;
-const double GameWindow::JudgementLimits::HOLD_NOTE_END_LIMIT = 0.3;
-double GameWindow::JudgementLimits::MUSIC_DIFFERENCE = -0.1;
-double GameWindow::JudgementLimits::NOTE_LINGERING_TIME = 0.6;
-
 sf::Vector2f GameWindow::TextPositions::SONG_NAME_POS = sf::Vector2f(GameWindow::Dimentions::WINDOW_WIDTH / 30, GameWindow::Dimentions::WINDOW_HEIGHT / 10 * 9);
 sf::Vector2f GameWindow::TextPositions::DIFFICULTY_POS = sf::Vector2f(GameWindow::Dimentions::WINDOW_WIDTH / 30 * 29, GameWindow::Dimentions::WINDOW_HEIGHT / 10 * 9);
 sf::Vector2f GameWindow::TextPositions::SCORE_POS = sf::Vector2f(GameWindow::Dimentions::WINDOW_WIDTH / 30 * 29, GameWindow::Dimentions::WINDOW_HEIGHT / 10);
 sf::Vector2f GameWindow::TextPositions::COMBO_POS = sf::Vector2f(GameWindow::Dimentions::WINDOW_WIDTH / 30, GameWindow::Dimentions::WINDOW_HEIGHT / 10);
 sf::Vector2f GameWindow::TextPositions::GAME_PAUSED_POS = sf::Vector2f(GameWindow::Dimentions::WINDOW_WIDTH / 2, GameWindow::Dimentions::WINDOW_HEIGHT / 2);
 sf::Vector2f GameWindow::TextPositions::AUTOPLAY_INDICATION_POS = sf::Vector2f(GameWindow::Dimentions::WINDOW_WIDTH / 30 * 29, GameWindow::Dimentions::WINDOW_HEIGHT / 2);
-
-unsigned int GameWindow::TextFont::TEXT_FONT_SIZE = 30;
-std::string GameWindow::TextFont::TEXT_FONT_DIR = "C:\\Windows\\Fonts\\";
-std::string GameWindow::TextFont::TEXT_FONT_TYPE = "Arial.ttf";
-
-double GameWindow::ScoreCalculations::COMBO_VISIBLE_LIMIT = 3.0;
-double GameWindow::ScoreCalculations::COMBO_PERCENTAGE = 0.1;
-double GameWindow::ScoreCalculations::GOOD_SCORE_PERCENTAGE = 0.65;
-
-const std::string GameWindow::GameVerdicts::GAME_PAUSE_VERDICT = "Game Paused\nPress space to continue\nPress r to restart";
-const std::string GameWindow::GameVerdicts::AUTOPLAY_VERDICT = "[Autoplay]";
-
-double GameWindow::Dimentions::PROGRESS_BAR_THICKNESS = GameWindow::Dimentions::WINDOW_HEIGHT / 120;
 
 const sf::Uint8 GameWindow::Colors::PAUSED_OPACITY = 32;
 

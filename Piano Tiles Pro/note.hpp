@@ -15,14 +15,14 @@ private:
 		double dist;
 		if (duration != 0) {
 			dist = std::max(
-				(GameWindow::Dimentions::WINDOW_HEIGHT - GameWindow::Dimentions::JUDGEMENT_LINE_SPACING) *
+				(GameWindow::Dimentions::WINDOW_HEIGHT - GameWindow::Dimentions::HORIZONTAL_JUDGEMENT_SPACING) *
 				(perfect_hit_time - time) / fall_time,
 				0.0
 			);
 		}
 		else {
 			dist =
-				(GameWindow::Dimentions::WINDOW_HEIGHT - GameWindow::Dimentions::JUDGEMENT_LINE_SPACING + GameWindow::Dimentions::TAP_NOTE_HEIGHT * 0.5) *
+				(GameWindow::Dimentions::WINDOW_HEIGHT - GameWindow::Dimentions::HORIZONTAL_JUDGEMENT_SPACING + GameWindow::Dimentions::TAP_NOTE_HEIGHT * 0.5) *
 				(perfect_hit_time - time) / fall_time - 0.5 * GameWindow::Dimentions::TAP_NOTE_HEIGHT;
 		}
 		if (lane_num < 8) {
@@ -42,7 +42,7 @@ public:
 			note_height = GameWindow::Dimentions::TAP_NOTE_HEIGHT;
 		}
 		else {
-			note_height = (GameWindow::Dimentions::WINDOW_HEIGHT - GameWindow::Dimentions::JUDGEMENT_LINE_SPACING) / fall_time * duration * fall_time_ratio;
+			note_height = (GameWindow::Dimentions::WINDOW_HEIGHT - GameWindow::Dimentions::HORIZONTAL_JUDGEMENT_SPACING) / fall_time * duration * fall_time_ratio;
 		}
 		lane_num = l;
 	}
