@@ -114,10 +114,11 @@ private:
         autoplay_indication_text.setCharacterSize(GameWindow::TextFont::TEXT_FONT_SIZE);
         count_down_text.setCharacterSize(GameWindow::TextFont::TEXT_FONT_SIZE);
 
-        music_name_text.setPosition(GameWindow::TextPositions::SONG_NAME_POS);
-        general_level_text.setPosition(GameWindow::TextPositions::DIFFICULTY_POS);
-        autoplay_indication_text.setPosition(GameWindow::TextPositions::AUTOPLAY_INDICATION_POS);
-        count_down_text.setPosition(GameWindow::TextPositions::GAME_PAUSED_POS);
+        music_name_text.setPosition(GameWindow::TextPositions::GET_SONG_NAME_POS(window.getSize()));
+        general_level_text.setPosition(GameWindow::TextPositions::GET_DIFFICULTY_POS(window.getSize()));
+        autoplay_indication_text.setPosition(GameWindow::TextPositions::GET_AUTOPLAY_INDICATION_POS(window.getSize()));
+        game_paused_text.setPosition(GameWindow::TextPositions::GET_GAME_PAUSED_POS(window.getSize()));
+        count_down_text.setPosition(GameWindow::TextPositions::GET_GAME_PAUSED_POS(window.getSize()));
     }
 
     void update_screen() {
@@ -197,7 +198,7 @@ private:
         score_text.setOrigin(
             score_text.getGlobalBounds().width, 0
         );
-        score_text.setPosition(GameWindow::TextPositions::SCORE_POS);
+        score_text.setPosition(GameWindow::TextPositions::GET_SCORE_POS(window.getSize()));
 
         set_text_position();
         window.draw(music_name_text);
@@ -205,7 +206,7 @@ private:
         window.draw(score_text);
         if (current_combo >= GameWindow::ScoreCalculations::COMBO_VISIBLE_LIMIT) {
             combo_text.setString(std::to_string((int)current_combo) + " COMBO");
-            combo_text.setPosition(GameWindow::TextPositions::COMBO_POS);
+            combo_text.setPosition(GameWindow::TextPositions::GET_COMBO_POS(window.getSize()));
             window.draw(combo_text);
         }
         if (is_paused && pause_count_down_timer < 0) {
@@ -337,6 +338,9 @@ public:
                 }
                 else if (event.type == sf::Event::Resized) {
                     GameWindow::update_window_size(event.size.width, event.size.height);
+                    is_paused = true;
+                    music.pause();
+                    music_started = false;
                 }
                 else if (event.type == sf::Event::KeyPressed) {
                     switch (event.key.scancode)
@@ -412,6 +416,9 @@ public:
                 }
                 else if (event.type == sf::Event::Resized) {
                     GameWindow::update_window_size(event.size.width, event.size.height);
+                    is_paused = true;
+                    music.pause();
+                    music_started = false;;
                 }
                 else if (event.type == sf::Event::LostFocus) {
                     is_paused = true;

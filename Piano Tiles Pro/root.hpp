@@ -32,17 +32,37 @@ public:
 		inline static const double BAD_LIMIT = 0.18;
 		inline static const double HOLD_NOTE_END_LIMIT = 0.3;
 		inline static const double NOTE_LINGERING_TIME = 0.6;
-		inline static double MUSIC_DIFFERENCE = -0.1;
+		inline static double MUSIC_DIFFERENCE = -0.2;
 	};
 
 	class TextPositions {
+	private:
+		inline static const sf::Vector2f SONG_NAME_POS = sf::Vector2f(64, 972);
+		inline static const sf::Vector2f DIFFICULTY_POS = sf::Vector2f(1856, 972);
+		inline static const sf::Vector2f SCORE_POS = sf::Vector2f(1856, 108);
+		inline static const sf::Vector2f COMBO_POS = sf::Vector2f(64, 108);
+		inline static const sf::Vector2f GAME_PAUSED_POS = sf::Vector2f(960, 540);
+		inline static const sf::Vector2f AUTOPLAY_INDICATION_POS = sf::Vector2f(1856, 540);
+
 	public:
-		static sf::Vector2f SONG_NAME_POS;
-		static sf::Vector2f DIFFICULTY_POS;
-		static sf::Vector2f SCORE_POS;
-		static sf::Vector2f COMBO_POS;
-		static sf::Vector2f GAME_PAUSED_POS;
-		static sf::Vector2f AUTOPLAY_INDICATION_POS;
+		static sf::Vector2f GET_SONG_NAME_POS(sf::Vector2u size) {
+			return sf::Vector2f(SONG_NAME_POS.x * size.x / Dimentions::WINDOW_WIDTH, SONG_NAME_POS.y * size.y / Dimentions::WINDOW_HEIGHT);
+		};
+		static sf::Vector2f GET_DIFFICULTY_POS(sf::Vector2u size) {
+			return sf::Vector2f(DIFFICULTY_POS.x * size.x / Dimentions::WINDOW_WIDTH, DIFFICULTY_POS.y * size.y / Dimentions::WINDOW_HEIGHT);
+		};
+		static sf::Vector2f GET_SCORE_POS(sf::Vector2u size) {
+			return sf::Vector2f(SCORE_POS.x * size.x / Dimentions::WINDOW_WIDTH, SCORE_POS.y * size.y / Dimentions::WINDOW_HEIGHT);
+		};
+		static sf::Vector2f GET_COMBO_POS(sf::Vector2u size) {
+			return sf::Vector2f(COMBO_POS.x * size.x / Dimentions::WINDOW_WIDTH, COMBO_POS.y * size.y / Dimentions::WINDOW_HEIGHT);
+		};
+		static sf::Vector2f GET_GAME_PAUSED_POS(sf::Vector2u size) {
+			return sf::Vector2f(GAME_PAUSED_POS.x * size.x / Dimentions::WINDOW_WIDTH, GAME_PAUSED_POS.y * size.y / Dimentions::WINDOW_HEIGHT);
+		};
+		static sf::Vector2f GET_AUTOPLAY_INDICATION_POS(sf::Vector2u size) {
+			return sf::Vector2f(AUTOPLAY_INDICATION_POS.x * size.x / Dimentions::WINDOW_WIDTH, AUTOPLAY_INDICATION_POS.y * size.y / Dimentions::WINDOW_HEIGHT);
+		}
 	};
 
 	class TextFont {
@@ -106,13 +126,6 @@ public:
 			Dimentions::WINDOW_HEIGHT - Dimentions::HORIZONTAL_JUDGEMENT_SPACING,
 			Dimentions::HORIZONTAL_JUDGEMENT_SPACING
 		};
-
-		TextPositions::SONG_NAME_POS = sf::Vector2f(Dimentions::WINDOW_WIDTH / 30, Dimentions::WINDOW_HEIGHT / 10 * 9);
-		TextPositions::DIFFICULTY_POS = sf::Vector2f(Dimentions::WINDOW_WIDTH / 30 * 29, Dimentions::WINDOW_HEIGHT / 10 * 9);
-		TextPositions::SCORE_POS = sf::Vector2f(Dimentions::WINDOW_WIDTH / 30 * 29, Dimentions::WINDOW_HEIGHT / 10);
-		TextPositions::COMBO_POS = sf::Vector2f(Dimentions::WINDOW_WIDTH / 30, Dimentions::WINDOW_HEIGHT / 10);
-		TextPositions::GAME_PAUSED_POS = sf::Vector2f(Dimentions::WINDOW_WIDTH / 2, Dimentions::WINDOW_HEIGHT / 2);
-		TextPositions::AUTOPLAY_INDICATION_POS = sf::Vector2f(Dimentions::WINDOW_WIDTH / 30 * 29, Dimentions::WINDOW_HEIGHT / 2);
 	}
 };
 
@@ -140,13 +153,6 @@ std::vector<double> GameWindow::Dimentions::HORIZONTAL_JUDGEMENT_LINE_POS = {
 	GameWindow::Dimentions::WINDOW_HEIGHT - GameWindow::Dimentions::HORIZONTAL_JUDGEMENT_SPACING,
 	GameWindow::Dimentions::HORIZONTAL_JUDGEMENT_SPACING
 };
-
-sf::Vector2f GameWindow::TextPositions::SONG_NAME_POS = sf::Vector2f(GameWindow::Dimentions::WINDOW_WIDTH / 30, GameWindow::Dimentions::WINDOW_HEIGHT / 10 * 9);
-sf::Vector2f GameWindow::TextPositions::DIFFICULTY_POS = sf::Vector2f(GameWindow::Dimentions::WINDOW_WIDTH / 30 * 29, GameWindow::Dimentions::WINDOW_HEIGHT / 10 * 9);
-sf::Vector2f GameWindow::TextPositions::SCORE_POS = sf::Vector2f(GameWindow::Dimentions::WINDOW_WIDTH / 30 * 29, GameWindow::Dimentions::WINDOW_HEIGHT / 10);
-sf::Vector2f GameWindow::TextPositions::COMBO_POS = sf::Vector2f(GameWindow::Dimentions::WINDOW_WIDTH / 30, GameWindow::Dimentions::WINDOW_HEIGHT / 10);
-sf::Vector2f GameWindow::TextPositions::GAME_PAUSED_POS = sf::Vector2f(GameWindow::Dimentions::WINDOW_WIDTH / 2, GameWindow::Dimentions::WINDOW_HEIGHT / 2);
-sf::Vector2f GameWindow::TextPositions::AUTOPLAY_INDICATION_POS = sf::Vector2f(GameWindow::Dimentions::WINDOW_WIDTH / 30 * 29, GameWindow::Dimentions::WINDOW_HEIGHT / 2);
 
 const sf::Uint8 GameWindow::Colors::PAUSED_OPACITY = 32;
 
