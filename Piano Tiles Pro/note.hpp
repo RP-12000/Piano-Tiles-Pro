@@ -1,5 +1,4 @@
 #include "root.hpp"
-//#include <algorithm>
 #include <iostream>
 
 class Note {
@@ -11,19 +10,11 @@ private:
 	
 	int status = 4;
 
-	double dist_from_judgement_line(double time = GameWindow::Time::CURRENT_TIME) {
-		double dist;
-		if (duration != 0) {
-			dist = std::max(
-				(GameWindow::Dimentions::WINDOW_HEIGHT - GameWindow::Dimentions::HORIZONTAL_JUDGEMENT_SPACING) *
-				(perfect_hit_time - time) / fall_time,
-				0.0
-			);
-		}
-		else {
-			dist =
-				(GameWindow::Dimentions::WINDOW_HEIGHT - GameWindow::Dimentions::HORIZONTAL_JUDGEMENT_SPACING + GameWindow::Dimentions::TAP_NOTE_HEIGHT * 0.5) *
-				(perfect_hit_time - time) / fall_time - 0.5 * GameWindow::Dimentions::TAP_NOTE_HEIGHT;
+	double dist_from_judgement_line(double time = GameWindow::Time::CURRENT_TIME) const {
+		double dist = (GameWindow::Dimentions::WINDOW_HEIGHT - GameWindow::Dimentions::HORIZONTAL_JUDGEMENT_SPACING) *
+			(perfect_hit_time - time) / fall_time;
+		if (duration == 0) {
+			dist = std::max(dist, 0.0);
 		}
 		if (lane_num < 8) {
 			dist = -dist;
@@ -64,18 +55,18 @@ public:
 		return duration;
 	}
 
-	sf::RectangleShape toRect(bool is_paused = false) {
+	sf::RectangleShape toRect(bool is_paused = false) const {
 		sf::RectangleShape r;
 		if (duration == 0) {
 			r.setSize(sf::Vector2f(GameWindow::Dimentions::NOTE_WIDTH, GameWindow::Dimentions::TAP_NOTE_HEIGHT));
 			r.setFillColor(sf::Color(
-				GameWindow::Colors::NOTE_COLOR[is_paused].r,
-				GameWindow::Colors::NOTE_COLOR[is_paused].g,
-				GameWindow::Colors::NOTE_COLOR[is_paused].b,
+				GameWindow::Colors::TAP_NOTE_COLOR[is_paused].r,
+				GameWindow::Colors::TAP_NOTE_COLOR[is_paused].g,
+				GameWindow::Colors::TAP_NOTE_COLOR[is_paused].b,
 				std::max(
 					0.0,
-					GameWindow::Colors::NOTE_COLOR[is_paused].a -
-					std::max(0.0, GameWindow::Colors::NOTE_COLOR[is_paused].a / GameWindow::JudgementLimits::GOOD_LIMIT*(GameWindow::Time::CURRENT_TIME-perfect_hit_time))
+					GameWindow::Colors::TAP_NOTE_COLOR[is_paused].a -
+					std::max(0.0, GameWindow::Colors::TAP_NOTE_COLOR[is_paused].a / GameWindow::JudgementLimits::GOOD_LIMIT*(GameWindow::Time::CURRENT_TIME-perfect_hit_time))
 				)
 			));
 			r.setOutlineColor(sf::Color(
@@ -95,30 +86,33 @@ public:
 				note_height - std::max(0.0, note_height / duration * (GameWindow::Time::CURRENT_TIME - perfect_hit_time))
 			));
 			if (status == 3) {
-				r.setFillColor(GameWindow::Colors::NOTE_COLOR[1]);
+				r.setFillColor(GameWindow::Colors::HOLD_NOTE_COLOR[1]);
 				r.setOutlineColor(GameWindow::Colors::SYNC_COLOR[1]);
 			}
 			else {
-				r.setFillColor(GameWindow::Colors::NOTE_COLOR[is_paused]);
+				r.setFillColor(GameWindow::Colors::HOLD_NOTE_COLOR[is_paused]);
 				r.setOutlineColor(GameWindow::Colors::SYNC_COLOR[is_paused]);
 			}
 		}
 		if (duration == 0 || lane_num < 8) {
-			r.setOrigin(sf::Vector2f(0, r.getGlobalBounds().height));
+			r.setOrigin(sf::Vector2f(r.getGlobalBounds().width / 2.0f, r.getGlobalBounds().height));
+		}
+		else {
+			r.setOrigin(sf::Vector2f(r.getGlobalBounds().width / 2.0f, 0));
 		}
 		if (is_sync) {
 			r.setOutlineThickness(GameWindow::Dimentions::NOTE_OUTLINE_THICKNESS);
 		}
 		r.setPosition(
 			sf::Vector2f(
-				GameWindow::Dimentions::VERTICAL_JUDGEMENT_LINE_POS[lane_num % 8] + GameWindow::Dimentions::JUDGEMENT_LINE_SPACING / 5,
+				GameWindow::Dimentions::VERTICAL_JUDGEMENT_LINE_POS[lane_num % 8] + GameWindow::Dimentions::JUDGEMENT_LINE_SPACING / 2,
 				dist_from_judgement_line()
 			)
 		);
 		return r;
 	}
 
-	sf::RectangleShape toParticle(bool is_paused = false) {
+	sf::RectangleShape toParticle(bool is_paused = false) const {
 		double current_time = GameWindow::Time::CURRENT_TIME;
 		while (current_time > actual_hit_time + GameWindow::JudgementLimits::NOTE_LINGERING_TIME) {
 			current_time -= GameWindow::JudgementLimits::NOTE_LINGERING_TIME;

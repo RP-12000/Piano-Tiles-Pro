@@ -15,7 +15,7 @@ private:
     std::string music_name, general_level;
     sf::Font chart_font;
     sf::Text music_name_text, general_level_text, score_text, combo_text, game_paused_text, autoplay_indication_text, count_down_text;
-    sf::Text 
+    sf::Text
         final_score_text, final_combo_text, final_acc_text,
         final_perfect_text, final_good_text, final_bad_text, final_miss_text, final_early_text, final_late_text,
         final_game_paused_text;
@@ -29,9 +29,10 @@ private:
     double total_good_until_last_miss, total_perfect_until_last_miss;
     bool is_paused, is_game_over, is_autoplay;
     double pause_count_down_timer;
-    
+
     std::vector<bool> visible_vertical_judgement_line;
     std::vector<bool> visible_horizontal_judgement_line;
+    std::vector<sf::RectangleShape> notes_to_be_drawn;
 
     /*
     Split the string passed into the function by the spliting character
@@ -70,7 +71,7 @@ private:
         total_perfect_until_last_miss = 0.0;
         GameWindow::Time::CURRENT_TIME = STATIC_TIMER;
         is_paused = false;
-        pause_count_down_timer = - GameWindow::Time::WINDOW_TIME_TICK;
+        pause_count_down_timer = -GameWindow::Time::WINDOW_TIME_TICK;
     }
 
     void init_text() {
@@ -114,38 +115,51 @@ private:
         autoplay_indication_text.setCharacterSize(GameWindow::TextFont::TEXT_FONT_SIZE);
         count_down_text.setCharacterSize(GameWindow::TextFont::TEXT_FONT_SIZE);
 
-        music_name_text.setPosition(GameWindow::TextPositions::GET_SONG_NAME_POS(window.getSize()));
-        general_level_text.setPosition(GameWindow::TextPositions::GET_DIFFICULTY_POS(window.getSize()));
-        autoplay_indication_text.setPosition(GameWindow::TextPositions::GET_AUTOPLAY_INDICATION_POS(window.getSize()));
-        game_paused_text.setPosition(GameWindow::TextPositions::GET_GAME_PAUSED_POS(window.getSize()));
-        count_down_text.setPosition(GameWindow::TextPositions::GET_GAME_PAUSED_POS(window.getSize()));
+        music_name_text.setPosition(GameWindow::TextPositions::SONG_NAME_POS);
+        general_level_text.setPosition(GameWindow::TextPositions::DIFFICULTY_POS);
+        autoplay_indication_text.setPosition(GameWindow::TextPositions::AUTOPLAY_INDICATION_POS);
+        game_paused_text.setPosition(GameWindow::TextPositions::GAME_PAUSED_POS);
+        count_down_text.setPosition(GameWindow::TextPositions::GAME_PAUSED_POS);
     }
 
     void update_screen() {
         window.clear();
-
         for (int i = 0; i < 9; i++) {
             visible_vertical_judgement_line[i] = false;
         }
         for (int i = 0; i < 16; i++) {
             visible_horizontal_judgement_line[i] = false;
+
+            notes_to_be_drawn.clear();
+
+            for (int i = 0; i < 16; i++) {
+                std::vector<sf::RectangleShape> new_lane = lanes[i].to_rect(is_paused);
+                for (const sf::RectangleShape& n : new_lane) {
+                    notes_to_be_drawn.push_back(n);
+                }
+                if (lanes[i].is_visible()) {
+                    visible_vertical_judgement_line[i % 8] = true;
+                    visible_vertical_judgement_line[i % 8 + 1] = true;
+                    visible_horizontal_judgement_line[i] = true;
+                }
+            }
         }
-        for (int i = 0; i < 16; i++) {
-            std::vector<sf::RectangleShape> new_lane = lanes[i].to_rect(is_paused);
-            for (const sf::RectangleShape& n : new_lane) {
+
+        std::sort(
+            notes_to_be_drawn.begin(),
+            notes_to_be_drawn.end(),
+            [](const sf::RectangleShape& a, const sf::RectangleShape& b) {
+                return a.getSize().y > b.getSize().y;
+            }
+        );
+
+        for (const sf::RectangleShape& n : notes_to_be_drawn) {
                 window.draw(n);
-            }
-            if (lanes[i].is_visible()) {
-                visible_vertical_judgement_line[i % 8] = true;
-                visible_vertical_judgement_line[i % 8 + 1] = true;
-                visible_horizontal_judgement_line[i] = true;
-            }
         }
-        
 
         sf::Color jc = GameWindow::Colors::JUDGEMENT_LINE_COLOR[is_paused][2];
         if (Lane::miss + Lane::bad + Lane::good == 0) {
-            jc = GameWindow::Colors::JUDGEMENT_LINE_COLOR[is_paused][0];
+        jc = GameWindow::Colors::JUDGEMENT_LINE_COLOR[is_paused][0];
         }
         else if (Lane::miss + Lane::bad == 0) {
             jc = GameWindow::Colors::JUDGEMENT_LINE_COLOR[is_paused][1];
@@ -164,8 +178,8 @@ private:
         for (int i = 0; i < 16; i++) {
             if (visible_horizontal_judgement_line[i]) {
                 sf::Vertex judgement[2] = {
-                    sf::Vertex(sf::Vector2f(GameWindow::Dimentions::VERTICAL_JUDGEMENT_LINE_POS[i%8],GameWindow::Dimentions::HORIZONTAL_JUDGEMENT_LINE_POS[i/8])),
-                    sf::Vertex(sf::Vector2f(GameWindow::Dimentions::VERTICAL_JUDGEMENT_LINE_POS[i%8+1], GameWindow::Dimentions::HORIZONTAL_JUDGEMENT_LINE_POS[i/8]))
+                    sf::Vertex(sf::Vector2f(GameWindow::Dimentions::VERTICAL_JUDGEMENT_LINE_POS[i % 8],GameWindow::Dimentions::HORIZONTAL_JUDGEMENT_LINE_POS[i / 8])),
+                    sf::Vertex(sf::Vector2f(GameWindow::Dimentions::VERTICAL_JUDGEMENT_LINE_POS[i % 8 + 1], GameWindow::Dimentions::HORIZONTAL_JUDGEMENT_LINE_POS[i / 8]))
                 };
                 judgement[0].color = jc;
                 judgement[1].color = jc;
@@ -179,8 +193,7 @@ private:
         }
         current_combo = Lane::good + Lane::perfect - total_good_until_last_miss - total_perfect_until_last_miss;
         max_combo = std::max(max_combo, current_combo);
-
-        acc = Lane::perfect / note_count + GameWindow::ScoreCalculations::GOOD_SCORE_PERCENTAGE * Lane::good / note_count;
+                 acc = Lane::perfect / note_count + GameWindow::ScoreCalculations::GOOD_SCORE_PERCENTAGE * Lane::good / note_count;
         current_score = (int)std::round(
             1000000.0 * (acc * (1 - GameWindow::ScoreCalculations::COMBO_PERCENTAGE) + max_combo / note_count * GameWindow::ScoreCalculations::COMBO_PERCENTAGE)
         );
@@ -198,15 +211,14 @@ private:
         score_text.setOrigin(
             score_text.getGlobalBounds().width, 0
         );
-        score_text.setPosition(GameWindow::TextPositions::GET_SCORE_POS(window.getSize()));
-
+        score_text.setPosition(GameWindow::TextPositions::SCORE_POS);
         set_text_position();
         window.draw(music_name_text);
         window.draw(general_level_text);
         window.draw(score_text);
         if (current_combo >= GameWindow::ScoreCalculations::COMBO_VISIBLE_LIMIT) {
             combo_text.setString(std::to_string((int)current_combo) + " COMBO");
-            combo_text.setPosition(GameWindow::TextPositions::GET_COMBO_POS(window.getSize()));
+            combo_text.setPosition(GameWindow::TextPositions::COMBO_POS);
             window.draw(combo_text);
         }
         if (is_paused && pause_count_down_timer < 0) {
@@ -337,7 +349,6 @@ public:
                     window.close();
                 }
                 else if (event.type == sf::Event::Resized) {
-                    GameWindow::update_window_size(event.size.width, event.size.height);
                     is_paused = true;
                     music.pause();
                     music_started = false;
@@ -415,7 +426,6 @@ public:
                     return;
                 }
                 else if (event.type == sf::Event::Resized) {
-                    GameWindow::update_window_size(event.size.width, event.size.height);
                     is_paused = true;
                     music.pause();
                     music_started = false;;
@@ -474,7 +484,7 @@ public:
                     }
                 }
                 update_screen();
-                
+
                 if (!is_paused) {
                     GameWindow::Time::CURRENT_TIME += GameWindow::Time::WINDOW_TIME_TICK;
                     last_perfect = Lane::perfect;

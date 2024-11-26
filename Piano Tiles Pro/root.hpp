@@ -5,17 +5,21 @@ class GameWindow {
 public:
 	class Dimentions {
 	public:
-		static double WINDOW_WIDTH;
-		static double WINDOW_HEIGHT;
-		static double NOTE_WIDTH;
-		static double TAP_NOTE_HEIGHT;
-		static double NOTE_OUTLINE_THICKNESS;
-		static double PROGRESS_BAR_THICKNESS;
-		static double FIRST_JUDGEMENT_LINE_X;
-		static double JUDGEMENT_LINE_SPACING;
-		static double HORIZONTAL_JUDGEMENT_SPACING;
-		static std::vector<double> VERTICAL_JUDGEMENT_LINE_POS;
-		static std::vector<double> HORIZONTAL_JUDGEMENT_LINE_POS;
+		inline static double WINDOW_WIDTH = 1920.0;
+		inline static double WINDOW_HEIGHT = 1080.0;
+		inline static double FIRST_JUDGEMENT_LINE_X = 320.0;
+		inline static double JUDGEMENT_LINE_SPACING = 160.0;
+		inline static double NOTE_WIDTH = 96.0;
+		inline static double TAP_NOTE_HEIGHT = 10.0;
+		inline static double NOTE_OUTLINE_THICKNESS = 2.0;
+		inline static double PROGRESS_BAR_THICKNESS = 10.0;
+		inline static double HORIZONTAL_JUDGEMENT_SPACING = 216.0;
+		inline static std::vector<double> VERTICAL_JUDGEMENT_LINE_POS = {
+			320.0,480.0,640.0,800.0,960.0,1120.0,1280.0,1440.0,1600.0
+		};
+		inline static std::vector<double> HORIZONTAL_JUDGEMENT_LINE_POS = {
+			864.0,216.0
+		};
 	};
 
 	class Time {
@@ -32,37 +36,17 @@ public:
 		inline static const double BAD_LIMIT = 0.18;
 		inline static const double HOLD_NOTE_END_LIMIT = 0.3;
 		inline static const double NOTE_LINGERING_TIME = 0.6;
-		inline static double MUSIC_DIFFERENCE = -0.2;
+		inline static double MUSIC_DIFFERENCE = -0.18;
 	};
 
 	class TextPositions {
-	private:
+	public:
 		inline static const sf::Vector2f SONG_NAME_POS = sf::Vector2f(64, 972);
 		inline static const sf::Vector2f DIFFICULTY_POS = sf::Vector2f(1856, 972);
 		inline static const sf::Vector2f SCORE_POS = sf::Vector2f(1856, 108);
 		inline static const sf::Vector2f COMBO_POS = sf::Vector2f(64, 108);
 		inline static const sf::Vector2f GAME_PAUSED_POS = sf::Vector2f(960, 540);
 		inline static const sf::Vector2f AUTOPLAY_INDICATION_POS = sf::Vector2f(1856, 540);
-
-	public:
-		static sf::Vector2f GET_SONG_NAME_POS(sf::Vector2u size) {
-			return sf::Vector2f(SONG_NAME_POS.x * size.x / Dimentions::WINDOW_WIDTH, SONG_NAME_POS.y * size.y / Dimentions::WINDOW_HEIGHT);
-		};
-		static sf::Vector2f GET_DIFFICULTY_POS(sf::Vector2u size) {
-			return sf::Vector2f(DIFFICULTY_POS.x * size.x / Dimentions::WINDOW_WIDTH, DIFFICULTY_POS.y * size.y / Dimentions::WINDOW_HEIGHT);
-		};
-		static sf::Vector2f GET_SCORE_POS(sf::Vector2u size) {
-			return sf::Vector2f(SCORE_POS.x * size.x / Dimentions::WINDOW_WIDTH, SCORE_POS.y * size.y / Dimentions::WINDOW_HEIGHT);
-		};
-		static sf::Vector2f GET_COMBO_POS(sf::Vector2u size) {
-			return sf::Vector2f(COMBO_POS.x * size.x / Dimentions::WINDOW_WIDTH, COMBO_POS.y * size.y / Dimentions::WINDOW_HEIGHT);
-		};
-		static sf::Vector2f GET_GAME_PAUSED_POS(sf::Vector2u size) {
-			return sf::Vector2f(GAME_PAUSED_POS.x * size.x / Dimentions::WINDOW_WIDTH, GAME_PAUSED_POS.y * size.y / Dimentions::WINDOW_HEIGHT);
-		};
-		static sf::Vector2f GET_AUTOPLAY_INDICATION_POS(sf::Vector2u size) {
-			return sf::Vector2f(AUTOPLAY_INDICATION_POS.x * size.x / Dimentions::WINDOW_WIDTH, AUTOPLAY_INDICATION_POS.y * size.y / Dimentions::WINDOW_HEIGHT);
-		}
 	};
 
 	class TextFont {
@@ -87,131 +71,68 @@ public:
 
 	class Colors {
 	public:
-		static const sf::Uint8 PAUSED_OPACITY;
-		static const std::vector<sf::Color> NOTE_COLOR;
-		static const std::vector<sf::Color> SYNC_COLOR;
-		static const std::vector<sf::Color> PROGRESS_BAR_COLOR;
-		static const std::vector<std::vector<sf::Color>> PARTICLE_COLOR;
-		static const std::vector<std::vector<sf::Color>> JUDGEMENT_LINE_COLOR;
+		inline static const sf::Uint8 PAUSED_OPACITY = 32;
+		inline static const std::vector<sf::Color> TAP_NOTE_COLOR = {
+			sf::Color(130,222,250),
+			sf::Color(130,222,250,Colors::PAUSED_OPACITY)
+		};
+		inline static const std::vector<sf::Color> HOLD_NOTE_COLOR = {
+			sf::Color(255,255,255) ,
+			sf::Color(255,255,255,Colors::PAUSED_OPACITY)
+		};
+		inline static const std::vector<sf::Color> SYNC_COLOR = {
+			sf::Color(223,197,123),
+			sf::Color(223,197,123,Colors::PAUSED_OPACITY)
+		};
+		inline static const std::vector<sf::Color> PROGRESS_BAR_COLOR = {
+			sf::Color::Cyan,
+			sf::Color(sf::Color::Cyan.r,sf::Color::Cyan.g,sf::Color::Cyan.b,Colors::PAUSED_OPACITY)
+		};
+		inline static const std::vector<std::vector<sf::Color>> PARTICLE_COLOR = {
+			{
+				sf::Color(0,255,0),
+				sf::Color(0,0,255),
+				sf::Color(255,0,0)
+			},
+			{
+				sf::Color(0,255,0,Colors::PAUSED_OPACITY),
+				sf::Color(0,0,255,Colors::PAUSED_OPACITY),
+				sf::Color(255,0,0,Colors::PAUSED_OPACITY)
+			}
+		};
+		inline static const std::vector<std::vector<sf::Color>> JUDGEMENT_LINE_COLOR = {
+			{
+				sf::Color(0,255,0),
+				sf::Color(0,0,255),
+				sf::Color(255,255,255)
+			},
+			{
+				sf::Color(0,255,0,Colors::PAUSED_OPACITY),
+				sf::Color(0,0,255,Colors::PAUSED_OPACITY),
+				sf::Color(255,255,255,Colors::PAUSED_OPACITY)
+			}
+		};
 	};
 
 	class Activation {
 	public:
-		static const std::vector<sf::Keyboard::Scancode> ACTIVATION_KEYS;
+		inline static const std::vector<sf::Keyboard::Scancode> ACTIVATION_KEYS = {
+			sf::Keyboard::Scancode::A,
+			sf::Keyboard::Scancode::S,
+			sf::Keyboard::Scancode::D,
+			sf::Keyboard::Scancode::F,
+			sf::Keyboard::Scancode::J,
+			sf::Keyboard::Scancode::K,
+			sf::Keyboard::Scancode::L,
+			sf::Keyboard::Scancode::Semicolon,
+			sf::Keyboard::Scancode::Q,
+			sf::Keyboard::Scancode::W,
+			sf::Keyboard::Scancode::E,
+			sf::Keyboard::Scancode::R,
+			sf::Keyboard::Scancode::U,
+			sf::Keyboard::Scancode::I,
+			sf::Keyboard::Scancode::O,
+			sf::Keyboard::Scancode::P
+		};
 	};
-
-	static void update_window_size(double new_width, double new_height) {
-		Dimentions::WINDOW_WIDTH = new_width;
-		Dimentions::WINDOW_HEIGHT = new_height;
-
-		Dimentions::FIRST_JUDGEMENT_LINE_X = Dimentions::WINDOW_WIDTH / 6;
-		Dimentions::JUDGEMENT_LINE_SPACING = Dimentions::WINDOW_WIDTH / 12;
-		Dimentions::NOTE_WIDTH = Dimentions::JUDGEMENT_LINE_SPACING / 5 * 3;
-		Dimentions::TAP_NOTE_HEIGHT = Dimentions::WINDOW_HEIGHT / 108;
-		Dimentions::NOTE_OUTLINE_THICKNESS = -Dimentions::TAP_NOTE_HEIGHT / 5;
-		Dimentions::PROGRESS_BAR_THICKNESS = Dimentions::WINDOW_HEIGHT / 120;
-		Dimentions::VERTICAL_JUDGEMENT_LINE_POS = {
-			Dimentions::FIRST_JUDGEMENT_LINE_X + Dimentions::JUDGEMENT_LINE_SPACING * 0,
-			Dimentions::FIRST_JUDGEMENT_LINE_X + Dimentions::JUDGEMENT_LINE_SPACING * 1,
-			Dimentions::FIRST_JUDGEMENT_LINE_X + Dimentions::JUDGEMENT_LINE_SPACING * 2,
-			Dimentions::FIRST_JUDGEMENT_LINE_X + Dimentions::JUDGEMENT_LINE_SPACING * 3,
-			Dimentions::FIRST_JUDGEMENT_LINE_X + Dimentions::JUDGEMENT_LINE_SPACING * 4,
-			Dimentions::FIRST_JUDGEMENT_LINE_X + Dimentions::JUDGEMENT_LINE_SPACING * 5,
-			Dimentions::FIRST_JUDGEMENT_LINE_X + Dimentions::JUDGEMENT_LINE_SPACING * 6,
-			Dimentions::FIRST_JUDGEMENT_LINE_X + Dimentions::JUDGEMENT_LINE_SPACING * 7,
-			Dimentions::FIRST_JUDGEMENT_LINE_X + Dimentions::JUDGEMENT_LINE_SPACING * 8
-		};
-		Dimentions::HORIZONTAL_JUDGEMENT_SPACING = Dimentions::WINDOW_HEIGHT / 5;
-		Dimentions::HORIZONTAL_JUDGEMENT_LINE_POS = {
-			Dimentions::WINDOW_HEIGHT - Dimentions::HORIZONTAL_JUDGEMENT_SPACING,
-			Dimentions::HORIZONTAL_JUDGEMENT_SPACING
-		};
-	}
-};
-
-double GameWindow::Dimentions::WINDOW_WIDTH = 1920.0;
-double GameWindow::Dimentions::WINDOW_HEIGHT = 1080.0;
-double GameWindow::Dimentions::FIRST_JUDGEMENT_LINE_X = GameWindow::Dimentions::WINDOW_WIDTH / 6;
-double GameWindow::Dimentions::JUDGEMENT_LINE_SPACING = GameWindow::Dimentions::WINDOW_WIDTH / 12;
-double GameWindow::Dimentions::HORIZONTAL_JUDGEMENT_SPACING = GameWindow::Dimentions::WINDOW_HEIGHT / 5;
-double GameWindow::Dimentions::NOTE_WIDTH = GameWindow::Dimentions::JUDGEMENT_LINE_SPACING / 5 * 3;
-double GameWindow::Dimentions::TAP_NOTE_HEIGHT = GameWindow::Dimentions::WINDOW_HEIGHT / 108;
-double GameWindow::Dimentions::NOTE_OUTLINE_THICKNESS = -GameWindow::Dimentions::TAP_NOTE_HEIGHT / 5;
-double GameWindow::Dimentions::PROGRESS_BAR_THICKNESS = GameWindow::Dimentions::WINDOW_HEIGHT / 120;
-std::vector<double> GameWindow::Dimentions::VERTICAL_JUDGEMENT_LINE_POS = {
-	GameWindow::Dimentions::FIRST_JUDGEMENT_LINE_X + GameWindow::Dimentions::JUDGEMENT_LINE_SPACING * 0,
-	GameWindow::Dimentions::FIRST_JUDGEMENT_LINE_X + GameWindow::Dimentions::JUDGEMENT_LINE_SPACING * 1,
-	GameWindow::Dimentions::FIRST_JUDGEMENT_LINE_X + GameWindow::Dimentions::JUDGEMENT_LINE_SPACING * 2,
-	GameWindow::Dimentions::FIRST_JUDGEMENT_LINE_X + GameWindow::Dimentions::JUDGEMENT_LINE_SPACING * 3,
-	GameWindow::Dimentions::FIRST_JUDGEMENT_LINE_X + GameWindow::Dimentions::JUDGEMENT_LINE_SPACING * 4,
-	GameWindow::Dimentions::FIRST_JUDGEMENT_LINE_X + GameWindow::Dimentions::JUDGEMENT_LINE_SPACING * 5,
-	GameWindow::Dimentions::FIRST_JUDGEMENT_LINE_X + GameWindow::Dimentions::JUDGEMENT_LINE_SPACING * 6,
-	GameWindow::Dimentions::FIRST_JUDGEMENT_LINE_X + GameWindow::Dimentions::JUDGEMENT_LINE_SPACING * 7,
-	GameWindow::Dimentions::FIRST_JUDGEMENT_LINE_X + GameWindow::Dimentions::JUDGEMENT_LINE_SPACING * 8
-};
-std::vector<double> GameWindow::Dimentions::HORIZONTAL_JUDGEMENT_LINE_POS = {
-	GameWindow::Dimentions::WINDOW_HEIGHT - GameWindow::Dimentions::HORIZONTAL_JUDGEMENT_SPACING,
-	GameWindow::Dimentions::HORIZONTAL_JUDGEMENT_SPACING
-};
-
-const sf::Uint8 GameWindow::Colors::PAUSED_OPACITY = 32;
-
-const std::vector<sf::Color> GameWindow::Colors::NOTE_COLOR = {
-	sf::Color(255,255,255),
-	sf::Color(255,255,255,GameWindow::Colors::PAUSED_OPACITY)
-};
-
-const std::vector<sf::Color> GameWindow::Colors::SYNC_COLOR = {
-	sf::Color(255,255,0),
-	sf::Color(255,255,0,GameWindow::Colors::PAUSED_OPACITY)
-};
-
-const std::vector<sf::Color> GameWindow::Colors::PROGRESS_BAR_COLOR = {
-	sf::Color::Cyan,
-	sf::Color(sf::Color::Cyan.r,sf::Color::Cyan.g,sf::Color::Cyan.b,GameWindow::Colors::PAUSED_OPACITY)
-};
-
-const std::vector<std::vector<sf::Color>> GameWindow::Colors::PARTICLE_COLOR = {
-	{
-		sf::Color(0,255,0),
-		sf::Color(0,0,255),
-		sf::Color(255,0,0)
-	},
-	{
-		sf::Color(0,255,0,GameWindow::Colors::PAUSED_OPACITY),
-		sf::Color(0,0,255,GameWindow::Colors::PAUSED_OPACITY),
-		sf::Color(255,0,0,GameWindow::Colors::PAUSED_OPACITY)
-	}
-};
-
-const std::vector<std::vector<sf::Color>> GameWindow::Colors::JUDGEMENT_LINE_COLOR = {
-	{
-		sf::Color(0,255,0),
-		sf::Color(0,0,255),
-		sf::Color(255,255,255)
-	},
-	{
-		sf::Color(0,255,0,GameWindow::Colors::PAUSED_OPACITY),
-		sf::Color(0,0,255,GameWindow::Colors::PAUSED_OPACITY),
-		sf::Color(255,255,255,GameWindow::Colors::PAUSED_OPACITY)
-	}
-};
-
-const std::vector<sf::Keyboard::Scancode> GameWindow::Activation::ACTIVATION_KEYS = {
-	sf::Keyboard::Scancode::A,
-	sf::Keyboard::Scancode::S,
-	sf::Keyboard::Scancode::D,
-	sf::Keyboard::Scancode::F,
-	sf::Keyboard::Scancode::J,
-	sf::Keyboard::Scancode::K,
-	sf::Keyboard::Scancode::L,
-	sf::Keyboard::Scancode::Semicolon,
-	sf::Keyboard::Scancode::Q,
-	sf::Keyboard::Scancode::W,
-	sf::Keyboard::Scancode::E,
-	sf::Keyboard::Scancode::R,
-	sf::Keyboard::Scancode::U,
-	sf::Keyboard::Scancode::I,
-	sf::Keyboard::Scancode::O,
-	sf::Keyboard::Scancode::P
 };
