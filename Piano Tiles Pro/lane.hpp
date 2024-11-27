@@ -88,10 +88,10 @@ public:
 		std::vector<sf::RectangleShape> render_notes;
 		for (int i = left_pointer; i < right_pointer; i++) {
 			if (lane_notes[i].has_rect()) {
-				render_notes.push_back(lane_notes[i].toRect());
+				render_notes.push_back(lane_notes[i].toRect(is_paused));
 			}
 			if (lane_notes[i].has_particle()) {
-				render_notes.push_back(lane_notes[i].toParticle());
+				render_notes.push_back(lane_notes[i].toParticle(is_paused));
 			}
 		}
 		return render_notes;

@@ -2,24 +2,53 @@
 #include <vector>
 
 class GameWindow {
+private:
+	inline static const double ABS_WINDOW_WIDTH = 1920.0;
+	inline static const double ABS_WINDOW_HEIGHT = 1080.0;
+	inline static const double ABS_FIRST_JUDGEMENT_LINE_X = 320.0;
+	inline static const double ABS_VERTICAL_JUDGEMENT_SPACING = 160.0;
+	inline static const double ABS_NOTE_WIDTH = 96.0;
+	inline static const double ABS_TAP_NOTE_HEIGHT = 10.0;
+	inline static const double ABS_NOTE_OUTLINE_THICKNESS = 2.0;
+	inline static const double ABS_PROGRESS_BAR_THICKNESS = 10.0;
+	inline static const double ABS_HORIZONTAL_JUDGEMENT_SPACING = 216.0;
+	inline static const std::vector<double> ABS_VERTICAL_JUDGEMENT_LINE_POS = {
+		320.0,480.0,640.0,800.0,960.0,1120.0,1280.0,1440.0,1600.0
+	};
+	inline static const std::vector<double> ABS_HORIZONTAL_JUDGEMENT_LINE_POS = {
+		864.0,216.0
+	};
+
+	inline static const sf::Vector2f ABS_SONG_NAME_POS = sf::Vector2f(64, 972);
+	inline static const sf::Vector2f ABS_DIFFICULTY_POS = sf::Vector2f(1856, 972);
+	inline static const sf::Vector2f ABS_SCORE_POS = sf::Vector2f(1856, 108);
+	inline static const sf::Vector2f ABS_COMBO_POS = sf::Vector2f(64, 108);
+	inline static const sf::Vector2f ABS_GAME_PAUSED_POS = sf::Vector2f(960, 540);
+	inline static const sf::Vector2f ABS_AUTOPLAY_INDICATION_POS = sf::Vector2f(1856, 540);
+
+	inline static sf::Vector2f Transform(sf::VideoMode& mode, const sf::Vector2f absolute_position) {
+		return sf::Vector2f(absolute_position.x / ABS_WINDOW_WIDTH * mode.width, absolute_position.y / ABS_WINDOW_HEIGHT * mode.height);
+	}
+
 public:
 	class Dimentions {
 	public:
-		inline static double WINDOW_WIDTH = 1920.0;
-		inline static double WINDOW_HEIGHT = 1080.0;
-		inline static double FIRST_JUDGEMENT_LINE_X = 320.0;
-		inline static double JUDGEMENT_LINE_SPACING = 160.0;
-		inline static double NOTE_WIDTH = 96.0;
-		inline static double TAP_NOTE_HEIGHT = 10.0;
-		inline static double NOTE_OUTLINE_THICKNESS = 2.0;
-		inline static double PROGRESS_BAR_THICKNESS = 10.0;
-		inline static double HORIZONTAL_JUDGEMENT_SPACING = 216.0;
-		inline static std::vector<double> VERTICAL_JUDGEMENT_LINE_POS = {
-			320.0,480.0,640.0,800.0,960.0,1120.0,1280.0,1440.0,1600.0
-		};
-		inline static std::vector<double> HORIZONTAL_JUDGEMENT_LINE_POS = {
-			864.0,216.0
-		};
+		inline static sf::VideoMode INITIAL_VIDEO_MODE = sf::VideoMode::getFullscreenModes()[1];
+		inline static double WINDOW_WIDTH = INITIAL_VIDEO_MODE.width;
+		inline static double WINDOW_HEIGHT = INITIAL_VIDEO_MODE.height;
+		inline static double FIRST_JUDGEMENT_LINE_X = ABS_FIRST_JUDGEMENT_LINE_X / ABS_WINDOW_WIDTH * WINDOW_WIDTH;
+		inline static double VERTICAL_JUDGEMENT_SPACING = ABS_VERTICAL_JUDGEMENT_SPACING / ABS_WINDOW_WIDTH * WINDOW_WIDTH;
+		inline static double NOTE_WIDTH = ABS_NOTE_WIDTH / ABS_WINDOW_WIDTH * WINDOW_WIDTH;
+		inline static double TAP_NOTE_HEIGHT = ABS_TAP_NOTE_HEIGHT / ABS_WINDOW_HEIGHT * WINDOW_HEIGHT;
+		inline static double NOTE_OUTLINE_THICKNESS = ABS_NOTE_OUTLINE_THICKNESS / ABS_WINDOW_HEIGHT * WINDOW_HEIGHT;
+		inline static double PROGRESS_BAR_THICKNESS = ABS_PROGRESS_BAR_THICKNESS / ABS_WINDOW_HEIGHT * WINDOW_HEIGHT;
+		inline static double HORIZONTAL_JUDGEMENT_SPACING = ABS_HORIZONTAL_JUDGEMENT_SPACING / ABS_WINDOW_HEIGHT * WINDOW_HEIGHT;
+		inline static double GET_VERTICAL_JUDGEMENT_LINE_POS(int params) {
+			return ABS_VERTICAL_JUDGEMENT_LINE_POS[params] / ABS_WINDOW_WIDTH * WINDOW_WIDTH;
+		}
+		inline static double GET_HORIZONTAL_JUDGEMENT_LINE_POS(int params) {
+			return ABS_HORIZONTAL_JUDGEMENT_LINE_POS[params] / ABS_WINDOW_HEIGHT * WINDOW_HEIGHT;
+		}
 	};
 
 	class Time {
@@ -41,17 +70,17 @@ public:
 
 	class TextPositions {
 	public:
-		inline static const sf::Vector2f SONG_NAME_POS = sf::Vector2f(64, 972);
-		inline static const sf::Vector2f DIFFICULTY_POS = sf::Vector2f(1856, 972);
-		inline static const sf::Vector2f SCORE_POS = sf::Vector2f(1856, 108);
-		inline static const sf::Vector2f COMBO_POS = sf::Vector2f(64, 108);
-		inline static const sf::Vector2f GAME_PAUSED_POS = sf::Vector2f(960, 540);
-		inline static const sf::Vector2f AUTOPLAY_INDICATION_POS = sf::Vector2f(1856, 540);
+		inline static const sf::Vector2f SONG_NAME_POS = Transform(Dimentions::INITIAL_VIDEO_MODE, ABS_SONG_NAME_POS);
+		inline static const sf::Vector2f DIFFICULTY_POS = Transform(Dimentions::INITIAL_VIDEO_MODE, ABS_DIFFICULTY_POS);
+		inline static const sf::Vector2f SCORE_POS = Transform(Dimentions::INITIAL_VIDEO_MODE, ABS_SCORE_POS);
+		inline static const sf::Vector2f COMBO_POS = Transform(Dimentions::INITIAL_VIDEO_MODE, ABS_COMBO_POS);
+		inline static const sf::Vector2f GAME_PAUSED_POS = Transform(Dimentions::INITIAL_VIDEO_MODE, ABS_GAME_PAUSED_POS);
+		inline static const sf::Vector2f AUTOPLAY_INDICATION_POS = Transform(Dimentions::INITIAL_VIDEO_MODE, ABS_AUTOPLAY_INDICATION_POS);
 	};
 
 	class TextFont {
 	public:
-		inline static unsigned int TEXT_FONT_SIZE = 30;
+		inline static unsigned int TEXT_FONT_SIZE = 33;
 		inline static std::string TEXT_FONT_DIR = "C:\\Windows\\Fonts\\";
 		inline static std::string TEXT_FONT_TYPE = "Arial.ttf";
 	};
@@ -85,8 +114,8 @@ public:
 			sf::Color(223,197,123,Colors::PAUSED_OPACITY)
 		};
 		inline static const std::vector<sf::Color> PROGRESS_BAR_COLOR = {
-			sf::Color::Cyan,
-			sf::Color(sf::Color::Cyan.r,sf::Color::Cyan.g,sf::Color::Cyan.b,Colors::PAUSED_OPACITY)
+			sf::Color(0,255,255),
+			sf::Color(0,255,255,Colors::PAUSED_OPACITY)
 		};
 		inline static const std::vector<std::vector<sf::Color>> PARTICLE_COLOR = {
 			{

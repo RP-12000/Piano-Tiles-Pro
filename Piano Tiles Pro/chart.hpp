@@ -94,7 +94,7 @@ private:
             general_level_text.getGlobalBounds().width, 0
         ));
         game_paused_text.setOrigin(sf::Vector2f(
-            0,
+            game_paused_text.getGlobalBounds().width / 2.0f,
             game_paused_text.getGlobalBounds().height / 2.0f
         ));
         autoplay_indication_text.setOrigin(sf::Vector2f(
@@ -167,8 +167,8 @@ private:
         for (int i = 0; i < 9; i++) {
             if (visible_vertical_judgement_line[i]) {
                 sf::Vertex judgement[2] = {
-                    sf::Vertex(sf::Vector2f(GameWindow::Dimentions::VERTICAL_JUDGEMENT_LINE_POS[i],-1)),
-                    sf::Vertex(sf::Vector2f(GameWindow::Dimentions::VERTICAL_JUDGEMENT_LINE_POS[i], GameWindow::Dimentions::WINDOW_HEIGHT + 1))
+                    sf::Vertex(sf::Vector2f(GameWindow::Dimentions::GET_VERTICAL_JUDGEMENT_LINE_POS(i),-1)),
+                    sf::Vertex(sf::Vector2f(GameWindow::Dimentions::GET_VERTICAL_JUDGEMENT_LINE_POS(i), GameWindow::Dimentions::WINDOW_HEIGHT + 1))
                 };
                 judgement[0].color = jc;
                 judgement[1].color = jc;
@@ -178,8 +178,8 @@ private:
         for (int i = 0; i < 16; i++) {
             if (visible_horizontal_judgement_line[i]) {
                 sf::Vertex judgement[2] = {
-                    sf::Vertex(sf::Vector2f(GameWindow::Dimentions::VERTICAL_JUDGEMENT_LINE_POS[i % 8],GameWindow::Dimentions::HORIZONTAL_JUDGEMENT_LINE_POS[i / 8])),
-                    sf::Vertex(sf::Vector2f(GameWindow::Dimentions::VERTICAL_JUDGEMENT_LINE_POS[i % 8 + 1], GameWindow::Dimentions::HORIZONTAL_JUDGEMENT_LINE_POS[i / 8]))
+                    sf::Vertex(sf::Vector2f(GameWindow::Dimentions::GET_VERTICAL_JUDGEMENT_LINE_POS(i % 8), GameWindow::Dimentions::GET_HORIZONTAL_JUDGEMENT_LINE_POS(i / 8))),
+                    sf::Vertex(sf::Vector2f(GameWindow::Dimentions::GET_VERTICAL_JUDGEMENT_LINE_POS(i % 8 + 1), GameWindow::Dimentions::GET_HORIZONTAL_JUDGEMENT_LINE_POS(i / 8)))
                 };
                 judgement[0].color = jc;
                 judgement[1].color = jc;
@@ -321,7 +321,7 @@ public:
         init_text();
         visible_vertical_judgement_line.resize(9);
         visible_horizontal_judgement_line.resize(16);
-        window.create(sf::VideoMode(GameWindow::Dimentions::WINDOW_WIDTH, GameWindow::Dimentions::WINDOW_HEIGHT), "Piano Tiles Pro");
+        window.create(GameWindow::Dimentions::INITIAL_VIDEO_MODE, "Piano Tiles Pro");
         window.setVisible(false);
         window.setFramerateLimit(GameWindow::Time::WINDOW_FRAMERATE);
         window.setKeyRepeatEnabled(false);
