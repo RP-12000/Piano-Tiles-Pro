@@ -11,7 +11,6 @@ struct RawText {
     const std::string font_dir;
     const unsigned int char_size;
     const sf::Color c;
-    std::string s = "";
 };
 
 class Chart {
@@ -37,12 +36,13 @@ private:
     std::vector<bool> visible_horizontal_judgement_line;
     std::vector<sf::RectangleShape> notes_to_be_drawn;
 
-    void transform(RawText r, sf::Text t) {
+    void draw_raw_text(RawText r, std::string new_s) {
         sf::Font f;
+        sf::Text t;
         f.loadFromFile(r.font_dir);
         t.setFont(f);
         t.setCharacterSize(r.char_size);
-        t.setString(r.s);
+        t.setString(new_s);
         t.setPosition(
             sf::Vector2f(
                 r.position.x / GameWindow::GET_ABSOLUTE_REFERENCE_WINDOW_WIDTH() * GameWindow::GET_INITIAL_VIDEO_MODE().width,
@@ -50,6 +50,7 @@ private:
             )
         );
         t.setFillColor(r.c);
+        window.draw(t);
     }
 
     inline static RawText RAW_SONG_NAME_POS =
@@ -57,13 +58,13 @@ private:
     inline static RawText RAW_DIFFICULTY_POS =
         RawText{ sf::Vector2f(1856, 972), "C:\\Windows\\Fonts\\Arial.ttf", 33, sf::Color(255,255,255) };
     inline static RawText RAW_AUTOPLAY_INDICATION_POS =
-        RawText{ sf::Vector2f(1856, 540), "C:\\Windows\\Fonts\\Arial.ttf", 33, sf::Color(255,255,255), GameWindow::GameVerdicts::AUTOPLAY_VERDICT };
+        RawText{ sf::Vector2f(1856, 540), "C:\\Windows\\Fonts\\Arial.ttf", 33, sf::Color(255,255,255) };
     inline static RawText RAW_ACTIVE_SCORE_POS =
         RawText{ sf::Vector2f(1856, 108), "C:\\Windows\\Fonts\\Arial.ttf", 33, sf::Color(255,255,255) };
     inline static RawText RAW_ACTIVE_COMBO_POS =
         RawText{ sf::Vector2f(64, 108), "C:\\Windows\\Fonts\\Arial.ttf", 33, sf::Color(255,255,255) };
     inline static RawText RAW_ACTIVE_GAME_PAUSED_POS =
-        RawText{ sf::Vector2f(960, 540), "C:\\Windows\\Fonts\\Arial.ttf", 33, sf::Color(255,255,255), GameWindow::GameVerdicts::GAME_PAUSE_VERDICT };
+        RawText{ sf::Vector2f(960, 540), "C:\\Windows\\Fonts\\Arial.ttf", 33, sf::Color(255,255,255) };
 
     /*
     Split the string passed into the function by the spliting character
@@ -169,12 +170,8 @@ private:
                 window.draw(judgement, 2, sf::Lines);
             }
         }
-        RAW_SONG_NAME_POS.s = music_name;
-        transform(RAW_SONG_NAME_POS, temp_text);
-        window.draw(temp_text);
-
-        RAW_DIFFICULTY_POS.s = general_level;
-        window.draw(RAW_DIFFICULTY_POS.toText());
+        draw_raw_text(RAW_SONG_NAME_POS, music_name);
+        draw_raw_text(RAW_DIFFICULTY_POS, general_level);
 
         if (Lane::miss > last_miss || Lane::bad > last_bad) {
             total_good_until_last_miss = Lane::good;
@@ -196,22 +193,18 @@ private:
         for (int i = 0; i < std::min(6, 7 - count); i++) {
             verdict += "0";
         }
-        RAW_ACTIVE_SCORE_POS.s = (verdict + std::to_string(current_score));
-        window.draw(RAW_ACTIVE_SCORE_POS.toText());
+        draw_raw_text(RAW_ACTIVE_SCORE_POS, verdict + std::to_string(current_score));
 
 
         if (current_combo >= GameWindow::ScoreCalculations::COMBO_VISIBLE_LIMIT) {
-            RAW_ACTIVE_COMBO_POS.s = (std::to_string((int)current_combo) + " COMBO");
-            window.draw(RAW_ACTIVE_COMBO_POS.toText());
+            draw_raw_text(RAW_ACTIVE_COMBO_POS, std::to_string((int)current_combo) + " COMBO");
         }
 
         if (is_paused && pause_count_down_timer < 0) {
-            RAW_ACTIVE_GAME_PAUSED_POS.s = (GameWindow::GameVerdicts::GAME_PAUSE_VERDICT);
-            window.draw(RAW_ACTIVE_GAME_PAUSED_POS.toText());
+            draw_raw_text(RAW_ACTIVE_GAME_PAUSED_POS, GameWindow::GameVerdicts::GAME_PAUSE_VERDICT);
         }
         if (pause_count_down_timer >= 0) {
-            RAW_ACTIVE_GAME_PAUSED_POS.s = (std::to_string((int)pause_count_down_timer + 1));
-            window.draw(RAW_ACTIVE_GAME_PAUSED_POS.toText());
+            draw_raw_text(RAW_ACTIVE_GAME_PAUSED_POS, std::to_string((int)pause_count_down_timer + 1));
             pause_count_down_timer -= GameWindow::Time::WINDOW_TIME_TICK;
             if (pause_count_down_timer < 0) {
                 is_paused = false;
@@ -229,7 +222,7 @@ private:
 
 
         if (is_autoplay) {
-            window.draw(RAW_AUTOPLAY_INDICATION_POS.toText());
+            draw_raw_text(RAW_AUTOPLAY_INDICATION_POS, GameWindow::GameVerdicts::AUTOPLAY_VERDICT);
         }
 
 
