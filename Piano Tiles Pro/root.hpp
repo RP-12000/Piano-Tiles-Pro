@@ -1,8 +1,31 @@
+#pragma once
 #include <SFML/Graphics.hpp>
 #include <vector>
 
+struct RawText {
+	sf::Vector2f position;
+	std::string font_dir;
+	unsigned int char_size;
+	sf::Color c;
+
+	sf::Text toText() const {
+		sf::Font f;
+		f.loadFromFile(font_dir);
+		sf::Text t;
+		t.setFont(f);
+		t.setCharacterSize(char_size);
+		t.setPosition(
+			sf::Vector2f(position.x / ABS_WINDOW_WIDTH * INITIAL_VIDEO_MODE.width, position.y / ABS_WINDOW_HEIGHT * INITIAL_VIDEO_MODE.height)
+		);
+		t.setFillColor(c);
+		return t;
+	}
+};
+
 class GameWindow {
 private:
+	inline static sf::VideoMode INITIAL_VIDEO_MODE = sf::VideoMode::getFullscreenModes()[1];
+
 	inline static const double ABS_WINDOW_WIDTH = 1920.0;
 	inline static const double ABS_WINDOW_HEIGHT = 1080.0;
 	inline static const double ABS_FIRST_JUDGEMENT_LINE_X = 320.0;
@@ -19,21 +42,36 @@ private:
 		864.0,216.0
 	};
 
-	inline static const sf::Vector2f ABS_SONG_NAME_POS = sf::Vector2f(64, 972);
-	inline static const sf::Vector2f ABS_DIFFICULTY_POS = sf::Vector2f(1856, 972);
-	inline static const sf::Vector2f ABS_SCORE_POS = sf::Vector2f(1856, 108);
-	inline static const sf::Vector2f ABS_COMBO_POS = sf::Vector2f(64, 108);
-	inline static const sf::Vector2f ABS_GAME_PAUSED_POS = sf::Vector2f(960, 540);
-	inline static const sf::Vector2f ABS_AUTOPLAY_INDICATION_POS = sf::Vector2f(1856, 540);
+	inline static unsigned int TEXT_FONT_SIZE = 33;
 
-	inline static sf::Vector2f Transform(sf::VideoMode& mode, const sf::Vector2f absolute_position) {
-		return sf::Vector2f(absolute_position.x / ABS_WINDOW_WIDTH * mode.width, absolute_position.y / ABS_WINDOW_HEIGHT * mode.height);
-	}
+	inline static const RawText RAW_SONG_NAME_POS =
+		RawText{ sf::Vector2f(64, 972), "C:\\Windows\\Fonts\\Arial.ttf", 33, sf::Color(255,255,255) };
+	inline static const RawText RAW_DIFFICULTY_POS =
+		RawText{ sf::Vector2f(1856, 972), "C:\\Windows\\Fonts\\Arial.ttf", 33, sf::Color(255,255,255) };
+	inline static const RawText RAW_AUTOPLAY_INDICATION_POS = 
+		RawText{ sf::Vector2f(1856, 540), "C:\\Windows\\Fonts\\Arial.ttf", 33, sf::Color(255,255,255) };
+	inline static const RawText RAW_ACTIVE_SCORE_POS = 
+		RawText{ sf::Vector2f(1856, 108), "C:\\Windows\\Fonts\\Arial.ttf", 33, sf::Color(255,255,255) };
+	inline static const RawText RAW_ACTIVE_COMBO_POS = 
+		RawText{ sf::Vector2f(64, 108), "C:\\Windows\\Fonts\\Arial.ttf", 33, sf::Color(255,255,255) };
+	inline static const RawText RAW_ACTIVE_GAME_PAUSED_POS = 
+		RawText{ sf::Vector2f(960, 540), "C:\\Windows\\Fonts\\Arial.ttf", 33, sf::Color(255,255,255) };
 
 public:
-	class Dimentions {
+	inline static sf::VideoMode GET_INITIAL_VIDEO_MODE() {
+		return INITIAL_VIDEO_MODE;
+	}
+
+	inline static double GET_ABSOLUTE_REFERENCE_WINDOW_WIDTH() {
+		return ABS_WINDOW_WIDTH;
+	}
+
+	inline static double GET_ABSOLUTE_REFERENCE_WINDOW_HEIGHT() {
+		return ABS_WINDOW_HEIGHT;
+	}
+
+	class Dimensions {
 	public:
-		inline static sf::VideoMode INITIAL_VIDEO_MODE = sf::VideoMode::getFullscreenModes()[1];
 		inline static double WINDOW_WIDTH = INITIAL_VIDEO_MODE.width;
 		inline static double WINDOW_HEIGHT = INITIAL_VIDEO_MODE.height;
 		inline static double FIRST_JUDGEMENT_LINE_X = ABS_FIRST_JUDGEMENT_LINE_X / ABS_WINDOW_WIDTH * WINDOW_WIDTH;
@@ -68,21 +106,14 @@ public:
 		inline static double MUSIC_DIFFERENCE = -0.18;
 	};
 
-	class TextPositions {
+	class GameTexts {
 	public:
-		inline static const sf::Vector2f SONG_NAME_POS = Transform(Dimentions::INITIAL_VIDEO_MODE, ABS_SONG_NAME_POS);
-		inline static const sf::Vector2f DIFFICULTY_POS = Transform(Dimentions::INITIAL_VIDEO_MODE, ABS_DIFFICULTY_POS);
-		inline static const sf::Vector2f SCORE_POS = Transform(Dimentions::INITIAL_VIDEO_MODE, ABS_SCORE_POS);
-		inline static const sf::Vector2f COMBO_POS = Transform(Dimentions::INITIAL_VIDEO_MODE, ABS_COMBO_POS);
-		inline static const sf::Vector2f GAME_PAUSED_POS = Transform(Dimentions::INITIAL_VIDEO_MODE, ABS_GAME_PAUSED_POS);
-		inline static const sf::Vector2f AUTOPLAY_INDICATION_POS = Transform(Dimentions::INITIAL_VIDEO_MODE, ABS_AUTOPLAY_INDICATION_POS);
-	};
-
-	class TextFont {
-	public:
-		inline static unsigned int TEXT_FONT_SIZE = 33;
-		inline static std::string TEXT_FONT_DIR = "C:\\Windows\\Fonts\\";
-		inline static std::string TEXT_FONT_TYPE = "Arial.ttf";
+		inline static sf::Text SONG_NAME = RAW_SONG_NAME_POS.toText();
+		inline static sf::Text DIFFICULTY_POS = RAW_SONG_NAME_POS.toText();
+		inline static sf::Text AUTOPLAY_INDICATION_POS = RAW_AUTOPLAY_INDICATION_POS.toText();
+		inline static sf::Text ACTIVE_SCORE_POS = RAW_ACTIVE_SCORE_POS.toText();
+		inline static sf::Text ACTIVE_COMBO_POS = RAW_ACTIVE_COMBO_POS.toText();
+		inline static sf::Text ACTIVE_GAME_PAUSED_POS = RAW_ACTIVE_GAME_PAUSED_POS.toText();
 	};
 
 	class ScoreCalculations {

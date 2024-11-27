@@ -15,6 +15,7 @@ private:
 				}
 				else if (lane_notes[active_note_pointer].get_status() == 1) {
 					good++;
+					(lane_notes[active_note_pointer].get_strike_time_difference() < 0) ? (early++) : (late++);
 				}
 				else if (lane_notes[active_note_pointer].get_status() == 2) {
 					bad++;
