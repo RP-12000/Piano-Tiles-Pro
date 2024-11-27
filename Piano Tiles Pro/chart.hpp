@@ -8,7 +8,7 @@
 
 struct RawText {
     const sf::Vector2f position;
-    const std::string font_dir;
+    const int game_font_index;
     const unsigned int char_size;
     const sf::Color c;
 };
@@ -37,12 +37,14 @@ private:
     std::vector<sf::RectangleShape> notes_to_be_drawn;
 
     void draw_raw_text(RawText r, std::string new_s) {
-        sf::Font f;
         sf::Text t;
-        f.loadFromFile(r.font_dir);
-        t.setFont(f);
+        t.setFont(GameWindow::GAME_FONTS[r.game_font_index]);
         t.setCharacterSize(r.char_size);
         t.setString(new_s);
+        t.setOrigin(
+            t.getGlobalBounds().width / 2.0f,
+            t.getGlobalBounds().height / 2.0f
+        );
         t.setPosition(
             sf::Vector2f(
                 r.position.x / GameWindow::GET_ABSOLUTE_REFERENCE_WINDOW_WIDTH() * GameWindow::GET_INITIAL_VIDEO_MODE().width,
@@ -54,17 +56,17 @@ private:
     }
 
     inline static RawText RAW_SONG_NAME_POS =
-        RawText{ sf::Vector2f(64, 972), "C:\\Windows\\Fonts\\Arial.ttf", 33, sf::Color(255,255,255) };
+        RawText{ sf::Vector2f(64, 972), 0, 33, sf::Color(255,255,255) };
     inline static RawText RAW_DIFFICULTY_POS =
-        RawText{ sf::Vector2f(1856, 972), "C:\\Windows\\Fonts\\Arial.ttf", 33, sf::Color(255,255,255) };
+        RawText{ sf::Vector2f(1856, 972), 0, 33, sf::Color(255,255,255) };
     inline static RawText RAW_AUTOPLAY_INDICATION_POS =
-        RawText{ sf::Vector2f(1856, 540), "C:\\Windows\\Fonts\\Arial.ttf", 33, sf::Color(255,255,255) };
+        RawText{ sf::Vector2f(1856, 540), 0, 33, sf::Color(255,255,255) };
     inline static RawText RAW_ACTIVE_SCORE_POS =
-        RawText{ sf::Vector2f(1856, 108), "C:\\Windows\\Fonts\\Arial.ttf", 33, sf::Color(255,255,255) };
+        RawText{ sf::Vector2f(1856, 108), 0, 33, sf::Color(255,255,255) };
     inline static RawText RAW_ACTIVE_COMBO_POS =
-        RawText{ sf::Vector2f(64, 108), "C:\\Windows\\Fonts\\Arial.ttf", 33, sf::Color(255,255,255) };
+        RawText{ sf::Vector2f(64, 108), 0, 33, sf::Color(255,255,255) };
     inline static RawText RAW_ACTIVE_GAME_PAUSED_POS =
-        RawText{ sf::Vector2f(960, 540), "C:\\Windows\\Fonts\\Arial.ttf", 33, sf::Color(255,255,255) };
+        RawText{ sf::Vector2f(960, 540), 0, 33, sf::Color(255,255,255) };
 
     /*
     Split the string passed into the function by the spliting character
@@ -103,6 +105,7 @@ private:
         total_perfect_until_last_miss = 0.0;
         GameWindow::Time::CURRENT_TIME = STATIC_TIMER;
         is_paused = false;
+        is_game_over = false;
         pause_count_down_timer = -GameWindow::Time::WINDOW_TIME_TICK;
     }
 
@@ -320,7 +323,6 @@ public:
 
     void autoplay() {
         window.setVisible(true);
-        bool music_started = false;
         is_autoplay = true;
         restart();
         while (window.isOpen())
@@ -334,7 +336,6 @@ public:
                 else if (event.type == sf::Event::Resized) {
                     is_paused = true;
                     music.pause();
-                    music_started = false;
                 }
                 else if (event.type == sf::Event::KeyPressed) {
                     switch (event.key.scancode)
@@ -351,7 +352,6 @@ public:
                         else {
                             is_paused = true;
                             music.pause();
-                            music_started = false;
                         }
                         break;
                     case sf::Keyboard::Scan::Escape:
@@ -368,10 +368,12 @@ public:
                 }
                 else;
             }
-            if (!is_paused) {
-                if (GameWindow::Time::CURRENT_TIME >= GameWindow::JudgementLimits::MUSIC_DIFFERENCE && !music_started) {
+            if (!is_paused && !is_game_over) {
+                if (
+                    GameWindow::Time::CURRENT_TIME >= GameWindow::JudgementLimits::MUSIC_DIFFERENCE && 
+                    music.getStatus() != sf::Sound::Playing
+                    ) {
                     music.play();
-                    music_started = true;
                 }
             }
             if (GameWindow::Time::CURRENT_TIME <= buffer.getDuration().asSeconds()) {
@@ -396,7 +398,6 @@ public:
 
     void run_game() {
         window.setVisible(true);
-        bool music_started = false;
         restart();
         while (window.isOpen())
         {
@@ -411,19 +412,16 @@ public:
                 else if (event.type == sf::Event::Resized) {
                     is_paused = true;
                     music.pause();
-                    music_started = false;;
                 }
                 else if (event.type == sf::Event::LostFocus) {
                     is_paused = true;
                     music.pause();
-                    music_started = false;
                 }
                 else if (event.type == sf::Event::KeyPressed) {
                     if (!is_paused && !is_game_over) {
                         if (event.key.scancode == sf::Keyboard::Scancode::Space) {
                             is_paused = true;
                             music.pause();
-                            music_started = false;
                         }
                         else {
                             for (Lane& l : lanes) {
@@ -454,10 +452,12 @@ public:
                 }
                 else;
             }
-            if (!is_paused) {
-                if (GameWindow::Time::CURRENT_TIME >= GameWindow::JudgementLimits::MUSIC_DIFFERENCE && !music_started) {
+            if (!is_paused && !is_game_over) {
+                if (
+                    GameWindow::Time::CURRENT_TIME >= GameWindow::JudgementLimits::MUSIC_DIFFERENCE &&
+                    music.getStatus() != sf::Sound::Playing
+                    ) {
                     music.play();
-                    music_started = true;
                 }
             }
             if (GameWindow::Time::CURRENT_TIME <= buffer.getDuration().asSeconds()) {

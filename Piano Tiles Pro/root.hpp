@@ -21,6 +21,20 @@ private:
 		864.0,216.0
 	};
 
+	inline static const std::vector<std::string> FONT_DIR = {
+		"C:\\Windows\\Fonts\\Arial.ttf"
+	};
+
+	inline static std::vector<sf::Font> to_font() {
+		std::vector<sf::Font> fonts;
+		for (const std::string& s : FONT_DIR) {
+			sf::Font f;
+			f.loadFromFile(s);
+			fonts.push_back(f);
+		}
+		return fonts;
+	}
+
 public:
 	inline static sf::VideoMode GET_INITIAL_VIDEO_MODE() {
 		return INITIAL_VIDEO_MODE;
@@ -33,6 +47,8 @@ public:
 	inline static double GET_ABSOLUTE_REFERENCE_WINDOW_HEIGHT() {
 		return ABS_WINDOW_HEIGHT;
 	}
+
+	inline static std::vector<sf::Font> GAME_FONTS = to_font();
 
 	class Dimensions {
 	public:
@@ -67,7 +83,7 @@ public:
 		inline static const double BAD_LIMIT = 0.18;
 		inline static const double HOLD_NOTE_END_LIMIT = 0.3;
 		inline static const double NOTE_LINGERING_TIME = 0.6;
-		inline static double MUSIC_DIFFERENCE = -0.18;
+		inline static double MUSIC_DIFFERENCE = 0;
 	};
 
 	class ScoreCalculations {

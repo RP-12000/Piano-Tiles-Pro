@@ -215,10 +215,17 @@ public:
 	int visiblility_status() const {
 		if (duration == 0) {
 			if (
+				(status == 3 || status == 4) && 
 				GameWindow::Time::CURRENT_TIME >= perfect_hit_time - fall_time &&
 				GameWindow::Time::CURRENT_TIME <= perfect_hit_time + GameWindow::JudgementLimits::BAD_LIMIT &&
 				(is_active() || (!is_active() && has_particle()))
-			) {
+				) {
+				return 1;
+			}
+			else if (
+				(status == 0 || status == 1 || status == 2) &&
+				GameWindow::Time::CURRENT_TIME <= actual_hit_time + GameWindow::JudgementLimits::NOTE_LINGERING_TIME
+				) {
 				return 1;
 			}
 			else if (GameWindow::Time::CURRENT_TIME < perfect_hit_time - fall_time) { return 0; }
