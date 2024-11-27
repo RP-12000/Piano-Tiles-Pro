@@ -12,6 +12,38 @@ struct RawText {
     const unsigned int char_size;
     const sf::Color c;
     std::string s = "";
+
+    sf::Text toText() const {
+        sf::Font f;
+        f.loadFromFile(font_dir);
+        sf::Text t;
+        t.setFont(f);
+        t.setCharacterSize(char_size);
+        t.setString(s);
+        t.setPosition(
+            sf::Vector2f(
+                position.x / GameWindow::GET_ABSOLUTE_REFERENCE_WINDOW_WIDTH() * GameWindow::GET_INITIAL_VIDEO_MODE().width,
+                position.y / GameWindow::GET_ABSOLUTE_REFERENCE_WINDOW_HEIGHT() * GameWindow::GET_INITIAL_VIDEO_MODE().height
+            )
+        );
+        t.setFillColor(c);
+        return t;
+    }
+
+    void foo(sf::Text& t) {
+        sf::Font f;
+        f.loadFromFile(font_dir);
+        t.setFont(f);
+        t.setCharacterSize(char_size);
+        t.setString(s);
+        t.setPosition(
+            sf::Vector2f(
+                position.x / GameWindow::GET_ABSOLUTE_REFERENCE_WINDOW_WIDTH() * GameWindow::GET_INITIAL_VIDEO_MODE().width,
+                position.y / GameWindow::GET_ABSOLUTE_REFERENCE_WINDOW_HEIGHT() * GameWindow::GET_INITIAL_VIDEO_MODE().height
+            )
+        );
+        t.setFillColor(c);
+    }
 };
 
 class Chart {
@@ -28,7 +60,7 @@ private:
     double max_combo, current_combo;
     double acc;
     int current_score;
-    sf::Text temp_text;
+    sf::Text t;
     double total_good_until_last_miss, total_perfect_until_last_miss;
     bool is_paused, is_game_over, is_autoplay;
     double pause_count_down_timer;
@@ -170,8 +202,8 @@ private:
             }
         }
         RAW_SONG_NAME_POS.s = music_name;
-        transform(RAW_SONG_NAME_POS, temp_text);
-        window.draw(temp_text);
+        transform(RAW_SONG_NAME_POS, t);
+        window.draw(t);
 
         RAW_DIFFICULTY_POS.s = general_level;
         window.draw(RAW_DIFFICULTY_POS.toText());

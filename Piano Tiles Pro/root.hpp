@@ -2,26 +2,6 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 
-struct RawText {
-	sf::Vector2f position;
-	std::string font_dir;
-	unsigned int char_size;
-	sf::Color c;
-
-	sf::Text toText() const {
-		sf::Font f;
-		f.loadFromFile(font_dir);
-		sf::Text t;
-		t.setFont(f);
-		t.setCharacterSize(char_size);
-		t.setPosition(
-			sf::Vector2f(position.x / ABS_WINDOW_WIDTH * INITIAL_VIDEO_MODE.width, position.y / ABS_WINDOW_HEIGHT * INITIAL_VIDEO_MODE.height)
-		);
-		t.setFillColor(c);
-		return t;
-	}
-};
-
 class GameWindow {
 private:
 	inline static sf::VideoMode INITIAL_VIDEO_MODE = sf::VideoMode::getFullscreenModes()[1];
@@ -41,21 +21,6 @@ private:
 	inline static const std::vector<double> ABS_HORIZONTAL_JUDGEMENT_LINE_POS = {
 		864.0,216.0
 	};
-
-	inline static unsigned int TEXT_FONT_SIZE = 33;
-
-	inline static const RawText RAW_SONG_NAME_POS =
-		RawText{ sf::Vector2f(64, 972), "C:\\Windows\\Fonts\\Arial.ttf", 33, sf::Color(255,255,255) };
-	inline static const RawText RAW_DIFFICULTY_POS =
-		RawText{ sf::Vector2f(1856, 972), "C:\\Windows\\Fonts\\Arial.ttf", 33, sf::Color(255,255,255) };
-	inline static const RawText RAW_AUTOPLAY_INDICATION_POS = 
-		RawText{ sf::Vector2f(1856, 540), "C:\\Windows\\Fonts\\Arial.ttf", 33, sf::Color(255,255,255) };
-	inline static const RawText RAW_ACTIVE_SCORE_POS = 
-		RawText{ sf::Vector2f(1856, 108), "C:\\Windows\\Fonts\\Arial.ttf", 33, sf::Color(255,255,255) };
-	inline static const RawText RAW_ACTIVE_COMBO_POS = 
-		RawText{ sf::Vector2f(64, 108), "C:\\Windows\\Fonts\\Arial.ttf", 33, sf::Color(255,255,255) };
-	inline static const RawText RAW_ACTIVE_GAME_PAUSED_POS = 
-		RawText{ sf::Vector2f(960, 540), "C:\\Windows\\Fonts\\Arial.ttf", 33, sf::Color(255,255,255) };
 
 public:
 	inline static sf::VideoMode GET_INITIAL_VIDEO_MODE() {
@@ -104,16 +69,6 @@ public:
 		inline static const double HOLD_NOTE_END_LIMIT = 0.3;
 		inline static const double NOTE_LINGERING_TIME = 0.6;
 		inline static double MUSIC_DIFFERENCE = -0.18;
-	};
-
-	class GameTexts {
-	public:
-		inline static sf::Text SONG_NAME = RAW_SONG_NAME_POS.toText();
-		inline static sf::Text DIFFICULTY_POS = RAW_SONG_NAME_POS.toText();
-		inline static sf::Text AUTOPLAY_INDICATION_POS = RAW_AUTOPLAY_INDICATION_POS.toText();
-		inline static sf::Text ACTIVE_SCORE_POS = RAW_ACTIVE_SCORE_POS.toText();
-		inline static sf::Text ACTIVE_COMBO_POS = RAW_ACTIVE_COMBO_POS.toText();
-		inline static sf::Text ACTIVE_GAME_PAUSED_POS = RAW_ACTIVE_GAME_PAUSED_POS.toText();
 	};
 
 	class ScoreCalculations {
