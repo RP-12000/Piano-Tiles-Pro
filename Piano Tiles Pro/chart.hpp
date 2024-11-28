@@ -22,15 +22,16 @@ private:
     sf::SoundBuffer buffer;
     sf::Sound music;
     std::vector<Lane> lanes;
-    std::string music_name, difficulty;
+
+    std::string music_name, composer, chart_design, illustration;
     double chart_constant;
-    double STATIC_TIMER;
     double note_count;
+    std::string difficulty;
+    double STATIC_TIMER;
     double last_miss, last_bad, last_good, last_perfect;
     double max_combo, current_combo;
     double acc;
     int current_score;
-    sf::Text temp_text;
     double total_good_until_last_miss, total_perfect_until_last_miss;
     bool is_paused, is_game_over, is_autoplay, has_restarted;
     double pause_count_down_timer;
@@ -124,30 +125,6 @@ private:
         }
     }
 
-    /*
-    Split the string passed into the function by the spliting character
-    By default the character is a space (' ')
-    */
-    std::vector<std::string> split(std::string a, char split = ' ') {
-        std::string temp = "";
-        std::vector<std::string> ans;
-        while (a.size() != 0) {
-            if (a[0] == split) {
-                ans.push_back(temp);
-                temp = "";
-            }
-            else {
-                temp += a[0];
-            }
-            a.erase(a.begin(), a.begin() + 1);
-        }
-        ans.push_back(temp);
-        if (ans[ans.size() - 1] == "") {
-            ans.erase(ans.end());
-        }
-        return ans;
-    }
-
     void reset_all_progress() {
         last_miss = 0.0;
         last_bad = 0.0;
@@ -172,6 +149,19 @@ private:
             l.restart();
         }
         reset_all_progress();
+    }
+
+    void update_score(){
+        if (Lane::miss > last_miss || Lane::bad > last_bad) {
+            total_good_until_last_miss = Lane::good;
+            total_perfect_until_last_miss = Lane::perfect;
+        }
+        current_combo = Lane::good + Lane::perfect - total_good_until_last_miss - total_perfect_until_last_miss;
+        max_combo = std::max(max_combo, current_combo);
+                 acc = Lane::perfect / note_count + GameWindow::ScoreCalculations::GOOD_SCORE_PERCENTAGE * Lane::good / note_count;
+        current_score = (int)std::round(
+            1000000.0 * (acc * (1 - GameWindow::ScoreCalculations::COMBO_PERCENTAGE) + max_combo / note_count * GameWindow::ScoreCalculations::COMBO_PERCENTAGE)
+        );
     }
 
     void draw_active_screen() {
@@ -239,17 +229,6 @@ private:
             }
         }
 
-        if (Lane::miss > last_miss || Lane::bad > last_bad) {
-            total_good_until_last_miss = Lane::good;
-            total_perfect_until_last_miss = Lane::perfect;
-        }
-        current_combo = Lane::good + Lane::perfect - total_good_until_last_miss - total_perfect_until_last_miss;
-        max_combo = std::max(max_combo, current_combo);
-                 acc = Lane::perfect / note_count + GameWindow::ScoreCalculations::GOOD_SCORE_PERCENTAGE * Lane::good / note_count;
-        current_score = (int)std::round(
-            1000000.0 * (acc * (1 - GameWindow::ScoreCalculations::COMBO_PERCENTAGE) + max_combo / note_count * GameWindow::ScoreCalculations::COMBO_PERCENTAGE)
-        );
-
         sf::RectangleShape progress_bar(sf::Vector2f(
             (GameWindow::Time::CURRENT_TIME - STATIC_TIMER) / (buffer.getDuration().asSeconds() - STATIC_TIMER) * GameWindow::Dimensions::WINDOW_WIDTH,
             GameWindow::Dimensions::PROGRESS_BAR_THICKNESS
@@ -258,6 +237,7 @@ private:
         progress_bar.setFillColor(GameWindow::Colors::PROGRESS_BAR_COLOR[is_paused]);
         window.draw(progress_bar);
 
+        update_score();
         render_all_text();
 
         window.display();
@@ -275,31 +255,23 @@ public:
         }
         music.setBuffer(buffer);
 
-        std::ifstream ifs;
-        ifs.open("Charts\\" + collection_name + "\\" + song_name + "\\" + d + ".txt", std::ios::in);
+        std::ifstream chart("Charts\\" + collection_name + "\\" + song_name + "\\" + d + ".txt", std::ios::in);
         if (!ifs.is_open()) {
             std::cerr << "Error: unable to find chart with " + d + " difficulty\n";
             abort();
         }
         music_name = song_name;
-        
-        std::string temp = "";
-        std::vector<std::tuple<double, int, double, double, double>> raw;
-        getline(ifs, temp);
-        chart_constant = std::stod(temp);
+        chart>>composer>>chart_design>>illustration>>chart_constant>>note_count;
         difficulty = d + " Lv. " + std::to_string((int)(chart_constant));
 
-        while (getline(ifs, temp)) {
-            std::vector<std::string> d = split(temp);
-            raw.push_back(
-                std::tuple<double, int, double, double, double>(
-                    std::stod(d[0]), std::stoi(d[1]), std::stod(d[2]), std::stod(d[3]), std::stod(d[4])
-                )
-            );
+        std::vector<std::tuple<double, int, double, double, double>> raw((int))note_count);
+        for(int i=0; i<(int)note_count; i++) {
+            for(int j=0; j<5; j++){
+                chart>>std::get<j>(raw[i]);
+            }
         }
-        note_count = raw.size();
-
         std::sort(raw.begin(), raw.end());
+
         STATIC_TIMER = std::min(0.0, std::get<0>(raw[0]) - std::get<2>(raw[0]));
         std::vector<bool> needs_sync;
         needs_sync.resize(note_count);
