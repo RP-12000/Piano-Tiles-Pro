@@ -14,6 +14,8 @@ struct RawText {
     const sf::Color c;
 };
 
+typedef std::pair<RawText, RawText> RawTextPair;
+
 class Chart {
 private:
     sf::RenderWindow window;
@@ -68,6 +70,59 @@ private:
         RawText{ sf::Vector2f(64, 108), 0, 0.5, 0, 33, sf::Color(255,255,255) };
     inline static RawText game_paused_text =
         RawText{ sf::Vector2f(960, 540), 0.5, 0.5, 0, 33, sf::Color(255,255,255) };
+
+
+    inline static RawText perfect_text = 
+        RawText{ sf::Vector2f(64, 432), 0, 0.5, 0, 33, sf::Color(255,255,255) };
+    inline static RawText good_text =
+        RawText{ sf::Vector2f(64, 486), 0, 0.5, 0, 33, sf::Color(255,255,255) };
+    inline static RawText bad_text =
+        RawText{ sf::Vector2f(64, 594), 0, 0.5, 0, 33, sf::Color(255,255,255) };
+    inline static RawText miss_text =
+        RawText{ sf::Vector2f(64, 648), 0, 0.5, 0, 33, sf::Color(255,255,255) };
+
+    inline static RawText acc_text =
+        RawText{ sf::Vector2f(1856, 432), 0, 0.5, 0, 33, sf::Color(255,255,255) };
+    inline static RawText max_combo_text =
+        RawText{ sf::Vector2f(1856, 486), 0, 0.5, 0, 33, sf::Color(255,255,255) };
+    inline static RawText early_text =
+        RawText{ sf::Vector2f(1856, 594), 0, 0.5, 0, 33, sf::Color(255,255,255) };
+    inline static RawText late_text =
+        RawText{ sf::Vector2f(1856, 648), 0, 0.5, 0, 33, sf::Color(255,255,255) };
+
+    void render_all_text() {
+        draw_raw_text(song_name_text, music_name);
+        draw_raw_text(difficulty_text, difficulty);
+        int temp_cs = current_score;
+        int count = 0;
+        while (temp_cs != 0) {
+            count++;
+            temp_cs = temp_cs / 10;
+        }
+        std::string verdict = "";
+        for (int i = 0; i < std::min(6, 7 - count); i++) {
+            verdict += "0";
+        }
+        draw_raw_text(score_text, verdict + std::to_string(current_score));
+
+        if (current_combo >= GameWindow::ScoreCalculations::COMBO_VISIBLE_LIMIT) {
+            draw_raw_text(combo_text, std::to_string((int)current_combo) + " COMBO");
+        }
+
+        if (is_paused && pause_count_down_timer < 0) {
+            draw_raw_text(game_paused_text, GameWindow::GameVerdicts::GAME_PAUSE_VERDICT);
+        }
+        if (pause_count_down_timer >= 0) {
+            draw_raw_text(game_paused_text, std::to_string((int)pause_count_down_timer + 1));
+            pause_count_down_timer -= GameWindow::Time::WINDOW_TIME_TICK;
+            if (pause_count_down_timer < 0) {
+                is_paused = false;
+            }
+        }
+        if (is_autoplay) {
+            draw_raw_text(autoplay_text, GameWindow::GameVerdicts::AUTOPLAY_VERDICT);
+        }
+    }
 
     /*
     Split the string passed into the function by the spliting character
@@ -183,8 +238,6 @@ private:
                 window.draw(judgement, 2, sf::Lines);
             }
         }
-        draw_raw_text(song_name_text, music_name);
-        draw_raw_text(difficulty_text, difficulty);
 
         if (Lane::miss > last_miss || Lane::bad > last_bad) {
             total_good_until_last_miss = Lane::good;
@@ -196,34 +249,6 @@ private:
         current_score = (int)std::round(
             1000000.0 * (acc * (1 - GameWindow::ScoreCalculations::COMBO_PERCENTAGE) + max_combo / note_count * GameWindow::ScoreCalculations::COMBO_PERCENTAGE)
         );
-        int temp_cs = current_score;
-        int count = 0;
-        while (temp_cs != 0) {
-            count++;
-            temp_cs = temp_cs / 10;
-        }
-        std::string verdict = "";
-        for (int i = 0; i < std::min(6, 7 - count); i++) {
-            verdict += "0";
-        }
-        draw_raw_text(score_text, verdict + std::to_string(current_score));
-
-
-        if (current_combo >= GameWindow::ScoreCalculations::COMBO_VISIBLE_LIMIT) {
-            draw_raw_text(combo_text, std::to_string((int)current_combo) + " COMBO");
-        }
-
-        if (is_paused && pause_count_down_timer < 0) {
-            draw_raw_text(game_paused_text, GameWindow::GameVerdicts::GAME_PAUSE_VERDICT);
-        }
-        if (pause_count_down_timer >= 0) {
-            draw_raw_text(game_paused_text, std::to_string((int)pause_count_down_timer + 1));
-            pause_count_down_timer -= GameWindow::Time::WINDOW_TIME_TICK;
-            if (pause_count_down_timer < 0) {
-                is_paused = false;
-            }
-        }
-
 
         sf::RectangleShape progress_bar(sf::Vector2f(
             (GameWindow::Time::CURRENT_TIME - STATIC_TIMER) / (buffer.getDuration().asSeconds() - STATIC_TIMER) * GameWindow::Dimensions::WINDOW_WIDTH,
@@ -233,11 +258,7 @@ private:
         progress_bar.setFillColor(GameWindow::Colors::PROGRESS_BAR_COLOR[is_paused]);
         window.draw(progress_bar);
 
-
-        if (is_autoplay) {
-            draw_raw_text(autoplay_text, GameWindow::GameVerdicts::AUTOPLAY_VERDICT);
-        }
-
+        render_all_text();
 
         window.display();
     }
