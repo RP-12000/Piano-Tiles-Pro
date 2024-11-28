@@ -1,20 +1,11 @@
 #include "lane.hpp"
+#include "game_text.hpp"
 #include <tuple>
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <cmath>
 #include <SFML/Audio.hpp>
-
-struct RawText {
-    const sf::Vector2f position;
-    const double x_align, y_align;
-    const int game_font_index;
-    const unsigned int char_size;
-    const sf::Color c;
-};
-
-typedef std::pair<RawText, RawText> RawTextPair;
 
 class Chart {
 private:
@@ -59,41 +50,9 @@ private:
         window.draw(t);
     }
 
-    inline static RawText song_name_text =
-        RawText{ sf::Vector2f(64, 972), 0, 0.5, 0, 33, sf::Color(255,255,255) };
-    inline static RawText difficulty_text =
-        RawText{ sf::Vector2f(1856, 972), 1, 0.5, 0, 33, sf::Color(255,255,255) };
-    inline static RawText autoplay_text =
-        RawText{ sf::Vector2f(1856, 540), 1, 0.5, 0, 33, sf::Color(255,255,255) };
-    inline static RawText score_text =
-        RawText{ sf::Vector2f(1856, 108), 1, 0.5, 0, 33, sf::Color(255,255,255) };
-    inline static RawText combo_text =
-        RawText{ sf::Vector2f(64, 108), 0, 0.5, 0, 33, sf::Color(255,255,255) };
-    inline static RawText game_paused_text =
-        RawText{ sf::Vector2f(960, 540), 0.5, 0.5, 0, 33, sf::Color(255,255,255) };
-
-
-    inline static RawText perfect_text = 
-        RawText{ sf::Vector2f(64, 432), 0, 0.5, 0, 33, sf::Color(255,255,255) };
-    inline static RawText good_text =
-        RawText{ sf::Vector2f(64, 486), 0, 0.5, 0, 33, sf::Color(255,255,255) };
-    inline static RawText bad_text =
-        RawText{ sf::Vector2f(64, 594), 0, 0.5, 0, 33, sf::Color(255,255,255) };
-    inline static RawText miss_text =
-        RawText{ sf::Vector2f(64, 648), 0, 0.5, 0, 33, sf::Color(255,255,255) };
-
-    inline static RawText acc_text =
-        RawText{ sf::Vector2f(1856, 432), 0, 0.5, 0, 33, sf::Color(255,255,255) };
-    inline static RawText max_combo_text =
-        RawText{ sf::Vector2f(1856, 486), 0, 0.5, 0, 33, sf::Color(255,255,255) };
-    inline static RawText early_text =
-        RawText{ sf::Vector2f(1856, 594), 0, 0.5, 0, 33, sf::Color(255,255,255) };
-    inline static RawText late_text =
-        RawText{ sf::Vector2f(1856, 648), 0, 0.5, 0, 33, sf::Color(255,255,255) };
-
     void render_all_text() {
-        draw_raw_text(song_name_text, music_name);
-        draw_raw_text(difficulty_text, difficulty);
+        draw_raw_text(GameText::song_name_text, music_name);
+        draw_raw_text(GameText::difficulty_text, difficulty);
         int temp_cs = current_score;
         int count = 0;
         while (temp_cs != 0) {
@@ -104,24 +63,24 @@ private:
         for (int i = 0; i < std::min(6, 7 - count); i++) {
             verdict += "0";
         }
-        draw_raw_text(score_text, verdict + std::to_string(current_score));
+        draw_raw_text(GameText::score_text, verdict + std::to_string(current_score));
 
         if (current_combo >= GameWindow::ScoreCalculations::COMBO_VISIBLE_LIMIT) {
-            draw_raw_text(combo_text, std::to_string((int)current_combo) + " COMBO");
+            draw_raw_text(GameText::combo_text, std::to_string((int)current_combo) + " COMBO");
         }
 
         if (is_paused && pause_count_down_timer < 0) {
-            draw_raw_text(game_paused_text, GameWindow::GameVerdicts::GAME_PAUSE_VERDICT);
+            draw_raw_text(GameText::game_paused_text, GameWindow::GameVerdicts::GAME_PAUSE_VERDICT);
         }
         if (pause_count_down_timer >= 0) {
-            draw_raw_text(game_paused_text, std::to_string((int)pause_count_down_timer + 1));
+            draw_raw_text(GameText::game_paused_text, std::to_string((int)pause_count_down_timer + 1));
             pause_count_down_timer -= GameWindow::Time::WINDOW_TIME_TICK;
             if (pause_count_down_timer < 0) {
                 is_paused = false;
             }
         }
         if (is_autoplay) {
-            draw_raw_text(autoplay_text, GameWindow::GameVerdicts::AUTOPLAY_VERDICT);
+            draw_raw_text(GameText::autoplay_text, GameWindow::GameVerdicts::AUTOPLAY_VERDICT);
         }
     }
 
