@@ -7,13 +7,37 @@ private:
     std::vector<std::string> current_choices;
     int level;
 
+    /*
+    Split the string passed into the function by the spliting character
+    By default the character is a space (' ')
+    */
+    std::vector<std::string> split(std::string a, char split = ' ') {
+        std::string temp = "";
+        std::vector<std::string> ans;
+        while (a.size() != 0) {
+            if (a[0] == split) {
+                ans.push_back(temp);
+                temp = "";
+            }
+            else {
+                temp += a[0];
+            }
+            a.erase(a.begin(), a.begin() + 1);
+        }
+        ans.push_back(temp);
+        if (ans[ans.size() - 1] == "") {
+            ans.erase(ans.end());
+        }
+        return ans;
+    }
+
     void collection_selection() {
         std::cout << "Welcome to Piano Tiles Pro v1.0.0-alpha!\n";
         std::cout << "Please select the collection you want to enter:\n";
 
         current_choices.clear();
         for (const auto& entry : std::filesystem::directory_iterator("Charts")) {
-            std::vector<std::string> temp = GameWindow::split(entry.path().string(), '\\');
+            std::vector<std::string> temp = split(entry.path().string(), '\\');
             current_choices.push_back(temp[temp.size()-1]);
         }
 
@@ -49,7 +73,7 @@ private:
         
         current_choices.clear();
         for (const auto& entry : std::filesystem::directory_iterator("Charts\\" + collection)) {
-            std::vector<std::string> temp = GameWindow::split(entry.path().string(), '\\');
+            std::vector<std::string> temp = split(entry.path().string(), '\\');
             current_choices.push_back(temp[temp.size() - 1]);
         }
 
@@ -85,7 +109,7 @@ private:
 
         current_choices.clear();
         for (const auto& entry : std::filesystem::directory_iterator("Charts\\" + collection + "\\"+ song)) {
-            std::vector<std::string> temp = GameWindow::split(entry.path().string(), '\\');
+            std::vector<std::string> temp = split(entry.path().string(), '\\');
             if (temp[temp.size() - 1].ends_with(".txt")) {
                 current_choices.push_back(temp[temp.size() - 1].substr(0, temp[temp.size() - 1].size() - 4));
             }

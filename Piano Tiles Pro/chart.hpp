@@ -8,6 +8,7 @@
 
 struct RawText {
     const sf::Vector2f position;
+    const double x_align, y_align;
     const int game_font_index;
     const unsigned int char_size;
     const sf::Color c;
@@ -19,7 +20,7 @@ private:
     sf::SoundBuffer buffer;
     sf::Sound music;
     std::vector<Lane> lanes;
-    std::string music_name, general_level;
+    std::string music_name, difficulty;
     double chart_constant;
     double STATIC_TIMER;
     double note_count;
@@ -29,7 +30,7 @@ private:
     int current_score;
     sf::Text temp_text;
     double total_good_until_last_miss, total_perfect_until_last_miss;
-    bool is_paused, is_game_over, is_autoplay;
+    bool is_paused, is_game_over, is_autoplay, has_restarted;
     double pause_count_down_timer;
 
     std::vector<bool> visible_vertical_judgement_line;
@@ -42,8 +43,8 @@ private:
         t.setCharacterSize(r.char_size);
         t.setString(new_s);
         t.setOrigin(
-            t.getGlobalBounds().width / 2.0f,
-            t.getGlobalBounds().height / 2.0f
+            t.getGlobalBounds().width * r.x_align,
+            t.getGlobalBounds().height * r.y_align
         );
         t.setPosition(
             sf::Vector2f(
@@ -55,18 +56,18 @@ private:
         window.draw(t);
     }
 
-    inline static RawText RAW_SONG_NAME_POS =
-        RawText{ sf::Vector2f(64, 972), 0, 33, sf::Color(255,255,255) };
-    inline static RawText RAW_DIFFICULTY_POS =
-        RawText{ sf::Vector2f(1856, 972), 0, 33, sf::Color(255,255,255) };
-    inline static RawText RAW_AUTOPLAY_INDICATION_POS =
-        RawText{ sf::Vector2f(1856, 540), 0, 33, sf::Color(255,255,255) };
-    inline static RawText RAW_ACTIVE_SCORE_POS =
-        RawText{ sf::Vector2f(1856, 108), 0, 33, sf::Color(255,255,255) };
-    inline static RawText RAW_ACTIVE_COMBO_POS =
-        RawText{ sf::Vector2f(64, 108), 0, 33, sf::Color(255,255,255) };
-    inline static RawText RAW_ACTIVE_GAME_PAUSED_POS =
-        RawText{ sf::Vector2f(960, 540), 0, 33, sf::Color(255,255,255) };
+    inline static RawText song_name_text =
+        RawText{ sf::Vector2f(64, 972), 0, 0.5, 0, 33, sf::Color(255,255,255) };
+    inline static RawText difficulty_text =
+        RawText{ sf::Vector2f(1856, 972), 1, 0.5, 0, 33, sf::Color(255,255,255) };
+    inline static RawText autoplay_text =
+        RawText{ sf::Vector2f(1856, 540), 1, 0.5, 0, 33, sf::Color(255,255,255) };
+    inline static RawText score_text =
+        RawText{ sf::Vector2f(1856, 108), 1, 0.5, 0, 33, sf::Color(255,255,255) };
+    inline static RawText combo_text =
+        RawText{ sf::Vector2f(64, 108), 0, 0.5, 0, 33, sf::Color(255,255,255) };
+    inline static RawText game_paused_text =
+        RawText{ sf::Vector2f(960, 540), 0.5, 0.5, 0, 33, sf::Color(255,255,255) };
 
     /*
     Split the string passed into the function by the spliting character
@@ -106,10 +107,19 @@ private:
         GameWindow::Time::CURRENT_TIME = STATIC_TIMER;
         is_paused = false;
         is_game_over = false;
+        has_restarted = true;
         pause_count_down_timer = -GameWindow::Time::WINDOW_TIME_TICK;
     }
 
-    void update_screen() {
+    void restart() {
+        music.stop();
+        for (Lane& l : lanes) {
+            l.restart();
+        }
+        reset_all_progress();
+    }
+
+    void draw_active_screen() {
         window.clear();
         for (int i = 0; i < 9; i++) {
             visible_vertical_judgement_line[i] = false;
@@ -173,8 +183,8 @@ private:
                 window.draw(judgement, 2, sf::Lines);
             }
         }
-        draw_raw_text(RAW_SONG_NAME_POS, music_name);
-        draw_raw_text(RAW_DIFFICULTY_POS, general_level);
+        draw_raw_text(song_name_text, music_name);
+        draw_raw_text(difficulty_text, difficulty);
 
         if (Lane::miss > last_miss || Lane::bad > last_bad) {
             total_good_until_last_miss = Lane::good;
@@ -196,18 +206,18 @@ private:
         for (int i = 0; i < std::min(6, 7 - count); i++) {
             verdict += "0";
         }
-        draw_raw_text(RAW_ACTIVE_SCORE_POS, verdict + std::to_string(current_score));
+        draw_raw_text(score_text, verdict + std::to_string(current_score));
 
 
         if (current_combo >= GameWindow::ScoreCalculations::COMBO_VISIBLE_LIMIT) {
-            draw_raw_text(RAW_ACTIVE_COMBO_POS, std::to_string((int)current_combo) + " COMBO");
+            draw_raw_text(combo_text, std::to_string((int)current_combo) + " COMBO");
         }
 
         if (is_paused && pause_count_down_timer < 0) {
-            draw_raw_text(RAW_ACTIVE_GAME_PAUSED_POS, GameWindow::GameVerdicts::GAME_PAUSE_VERDICT);
+            draw_raw_text(game_paused_text, GameWindow::GameVerdicts::GAME_PAUSE_VERDICT);
         }
         if (pause_count_down_timer >= 0) {
-            draw_raw_text(RAW_ACTIVE_GAME_PAUSED_POS, std::to_string((int)pause_count_down_timer + 1));
+            draw_raw_text(game_paused_text, std::to_string((int)pause_count_down_timer + 1));
             pause_count_down_timer -= GameWindow::Time::WINDOW_TIME_TICK;
             if (pause_count_down_timer < 0) {
                 is_paused = false;
@@ -225,7 +235,7 @@ private:
 
 
         if (is_autoplay) {
-            draw_raw_text(RAW_AUTOPLAY_INDICATION_POS, GameWindow::GameVerdicts::AUTOPLAY_VERDICT);
+            draw_raw_text(autoplay_text, GameWindow::GameVerdicts::AUTOPLAY_VERDICT);
         }
 
 
@@ -251,12 +261,12 @@ public:
             abort();
         }
         music_name = song_name;
-        general_level = d + " Lv.";
-
+        
         std::string temp = "";
         std::vector<std::tuple<double, int, double, double, double>> raw;
         getline(ifs, temp);
         chart_constant = std::stod(temp);
+        difficulty = d + " Lv. " + std::to_string((int)(chart_constant));
 
         while (getline(ifs, temp)) {
             std::vector<std::string> d = split(temp);
@@ -313,14 +323,6 @@ public:
         window.setKeyRepeatEnabled(false);
     }
 
-    void restart() {
-        music.stop();
-        for (Lane& l : lanes) {
-            l.restart();
-        }
-        reset_all_progress();
-    }
-
     void autoplay() {
         window.setVisible(true);
         is_autoplay = true;
@@ -371,9 +373,11 @@ public:
             if (!is_paused && !is_game_over) {
                 if (
                     GameWindow::Time::CURRENT_TIME >= GameWindow::JudgementLimits::MUSIC_DIFFERENCE && 
-                    music.getStatus() != sf::Sound::Playing
+                    music.getStatus() != sf::Sound::Playing &&
+                    has_restarted
                     ) {
                     music.play();
+                    has_restarted = false;
                 }
             }
             if (GameWindow::Time::CURRENT_TIME <= buffer.getDuration().asSeconds()) {
@@ -382,7 +386,7 @@ public:
                         l.autoplay();
                     }
                 }
-                update_screen();
+                draw_active_screen();
 
                 if (!is_paused) {
                     GameWindow::Time::CURRENT_TIME += GameWindow::Time::WINDOW_TIME_TICK;
@@ -455,9 +459,11 @@ public:
             if (!is_paused && !is_game_over) {
                 if (
                     GameWindow::Time::CURRENT_TIME >= GameWindow::JudgementLimits::MUSIC_DIFFERENCE &&
-                    music.getStatus() != sf::Sound::Playing
+                    music.getStatus() != sf::Sound::Playing &&
+                    has_restarted
                     ) {
                     music.play();
+                    has_restarted = false;
                 }
             }
             if (GameWindow::Time::CURRENT_TIME <= buffer.getDuration().asSeconds()) {
@@ -466,7 +472,7 @@ public:
                         l.update();
                     }
                 }
-                update_screen();
+                draw_active_screen();
 
                 if (!is_paused) {
                     GameWindow::Time::CURRENT_TIME += GameWindow::Time::WINDOW_TIME_TICK;

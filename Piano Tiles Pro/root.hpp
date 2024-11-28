@@ -50,30 +50,6 @@ public:
 
 	inline static std::vector<sf::Font> GAME_FONTS = to_font();
 
-	/*
-	Split the string passed into the function by the spliting character
-	By default the character is a space (' ')
-	*/
-	inline static std::vector<std::string> split(std::string a, char split = ' ') {
-		std::string temp = "";
-		std::vector<std::string> ans;
-		while (a.size() != 0) {
-			if (a[0] == split) {
-				ans.push_back(temp);
-				temp = "";
-			}
-			else {
-				temp += a[0];
-			}
-			a.erase(a.begin(), a.begin() + 1);
-		}
-		ans.push_back(temp);
-		if (ans[ans.size() - 1] == "") {
-			ans.erase(ans.end());
-		}
-		return ans;
-	}
-
 	class Dimensions {
 	public:
 		inline static double WINDOW_WIDTH = INITIAL_VIDEO_MODE.width;
