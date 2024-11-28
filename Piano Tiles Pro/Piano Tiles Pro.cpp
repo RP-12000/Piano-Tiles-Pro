@@ -7,38 +7,29 @@ private:
     std::vector<std::string> current_choices;
     int level;
 
-    /*
-    Reads in a file and returns the content in the file as a vector of strings
-    With each line as a different element in the vector
-    Omitting the newline character at the end of each line
-    */
-    std::vector<std::string> read_file(std::string file_name) {
-        std::ifstream ifs;
-        ifs.open(file_name, std::ios::in);
-        std::string temp = "";
-        std::vector<std::string> raw;
-        if (!ifs.is_open()) {
-            return raw;
-        }
-        while (getline(ifs, temp)) {
-            raw.push_back(temp);
-        }
-        return raw;
-    }
-
     void collection_selection() {
-        std::cout << "Welcome to Keyboard selection v1.0.0!\n";
+        std::cout << "Welcome to Piano Tiles Pro v1.0.0-alpha!\n";
         std::cout << "Please select the collection you want to enter:\n";
-        current_choices = read_file("Charts\\charts.choice");
+
+        current_choices.clear();
+        for (const auto& entry : std::filesystem::directory_iterator("Charts")) {
+            std::vector<std::string> temp = GameWindow::split(entry.path().string(), '\\');
+            current_choices.push_back(temp[temp.size()-1]);
+        }
+
         std::cout << "0. Exit Game\n";
         for (int i = 0; i < current_choices.size(); i++) {
             std::cout << i + 1 << ". " << current_choices[i] << " Collection\n";
         }
+
         int choice = -1;
         while (choice<0 || choice>current_choices.size()) {
             std::cin >> choice;
-            if (choice<0 || choice>current_choices.size()) {
+            if (choice<0 || choice>current_choices.size() || std::cin.fail()) {
                 std::cout << "Invalid selection. Please try again\n";
+                choice = -1;
+                std::cin.clear();
+                std::cin.ignore();
             }
         }
         if (choice == 0) {
@@ -54,17 +45,27 @@ private:
 
     void song_selection() {
         std::cout << "You have selected this collection: " << collection << '\n';
-        std::cout << "Please select the song you want to enter:\n";
-        current_choices = read_file("Charts\\"+collection+"\\"+collection+".choice");
+        std::cout << "Please select the song you want to play:\n";
+        
+        current_choices.clear();
+        for (const auto& entry : std::filesystem::directory_iterator("Charts\\" + collection)) {
+            std::vector<std::string> temp = GameWindow::split(entry.path().string(), '\\');
+            current_choices.push_back(temp[temp.size() - 1]);
+        }
+
         std::cout << "0. Back to Collection Selection\n";
         for (int i = 0; i < current_choices.size(); i++) {
             std::cout << i + 1 << ". " << current_choices[i] << "\n";
         }
+
         int choice = -1;
         while (choice<0 || choice>current_choices.size()) {
             std::cin >> choice;
-            if (choice<0 || choice>current_choices.size()) {
+            if (choice<0 || choice>current_choices.size() || std::cin.fail()) {
                 std::cout << "Invalid selection. Please try again\n";
+                choice = -1;
+                std::cin.clear();
+                std::cin.ignore();
             }
         }
         if (choice == 0) {
@@ -80,17 +81,29 @@ private:
 
     void chart_selection() {
         std::cout << "You have selected this song: " << song << '\n';
-        std::cout << "Please select the chart you want to enter:\n";
-        current_choices = read_file("Charts\\" + collection + "\\" + song + "\\" + song + ".choice");
-        std::cout << "0. Back to Song Selection\n";
-        for (int i = 2; i < current_choices.size(); i++) {
-            std::cout << i - 1 << ". " << current_choices[i] << " Chart\n";
+        std::cout << "Please select the chart you want to play:\n";
+
+        current_choices.clear();
+        for (const auto& entry : std::filesystem::directory_iterator("Charts\\" + collection + "\\"+ song)) {
+            std::vector<std::string> temp = GameWindow::split(entry.path().string(), '\\');
+            if (temp[temp.size() - 1].ends_with(".txt")) {
+                current_choices.push_back(temp[temp.size() - 1].substr(0, temp[temp.size() - 1].size() - 4));
+            }
         }
+        
+        std::cout << "0. Back to Song Selection\n";
+        for (int i = 0; i < current_choices.size(); i++) {
+            std::cout << i + 1 << ". " << current_choices[i] << " Chart\n";
+        }
+
         int choice = -1;
-        while (choice<0 || choice>current_choices.size() - 2) {
+        while (choice<0 || choice>current_choices.size()) {
             std::cin >> choice;
-            if (choice<0 || choice>current_choices.size() - 2) {
+            if (choice<0 || choice>current_choices.size() || std::cin.fail()) {
                 std::cout << "Invalid selection. Please try again\n";
+                choice = -1;
+                std::cin.clear();
+                std::cin.ignore();
             }
         }
         if (choice == 0) {
@@ -98,7 +111,7 @@ private:
             return;
         }
         else {
-            chart_name = current_choices[choice + 1];
+            chart_name = current_choices[choice - 1];
             level++;
             return;
         }
@@ -109,8 +122,11 @@ private:
         int choice = -1;
         while (choice < 0 || choice > 2) {
             std::cin >> choice;
-            if (choice < 0 || choice > 2) {
+            if (choice < 0 || choice > 2 || std::cin.fail()) {
                 std::cout << "Invalid choice. Please try again\n";
+                choice = -1;
+                std::cin.clear();
+                std::cin.ignore();
             }
         }
         if (choice == 0) {
