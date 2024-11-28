@@ -256,7 +256,7 @@ public:
         music.setBuffer(buffer);
 
         std::ifstream chart("Charts\\" + collection_name + "\\" + song_name + "\\" + d + ".txt", std::ios::in);
-        if (!ifs.is_open()) {
+        if (!chart.is_open()) {
             std::cerr << "Error: unable to find chart with " + d + " difficulty\n";
             abort();
         }
@@ -264,11 +264,9 @@ public:
         chart>>composer>>chart_design>>illustration>>chart_constant>>note_count;
         difficulty = d + " Lv. " + std::to_string((int)(chart_constant));
 
-        std::vector<std::tuple<double, int, double, double, double>> raw((int))note_count);
+        std::vector<std::tuple<double, int, double, double, double>> raw((int)note_count);
         for(int i=0; i<(int)note_count; i++) {
-            for(int j=0; j<5; j++){
-                chart>>std::get<j>(raw[i]);
-            }
+            chart >> std::get<0>(raw[i]) >> std::get<1>(raw[i]) >> std::get<2>(raw[i]) >> std::get<3>(raw[i]) >> std::get<4>(raw[i]);
         }
         std::sort(raw.begin(), raw.end());
 
