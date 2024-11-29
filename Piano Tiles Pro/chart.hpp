@@ -14,6 +14,10 @@ private:
     sf::Sound music;
     std::vector<Lane> lanes;
 
+    sf::Image chart_image;
+    sf::Texture chart_illustration;
+    sf::Sprite background;
+
     std::string music_name, composer, chart_design, illustration;
     double chart_constant;
     double note_count;
@@ -31,29 +35,8 @@ private:
     std::vector<bool> visible_horizontal_judgement_line;
     std::vector<sf::RectangleShape> notes_to_be_drawn;
 
-    void draw_raw_text(RawText r, std::string new_s) {
-        sf::Text t;
-        t.setFont(GameWindow::GAME_FONTS[r.game_font_index]);
-        t.setCharacterSize(r.char_size);
-        t.setString(new_s);
-        t.setOrigin(
-            t.getGlobalBounds().width * r.x_align,
-            t.getGlobalBounds().height * r.y_align
-        );
-        t.setPosition(
-            sf::Vector2f(
-                r.position.x / GameWindow::GET_ABSOLUTE_REFERENCE_WINDOW_WIDTH() * GameWindow::GET_INITIAL_VIDEO_MODE().width,
-                r.position.y / GameWindow::GET_ABSOLUTE_REFERENCE_WINDOW_HEIGHT() * GameWindow::GET_INITIAL_VIDEO_MODE().height
-            )
-        );
-        t.setFillColor(r.c);
-        window.draw(t);
-    }
-
-    void render_all_active_text() {
-        draw_raw_text(GameText::Active::song_name_text, music_name);
-        draw_raw_text(GameText::Active::difficulty_text, difficulty);
-        int temp_cs = current_score;
+    std::string score_to_string(int score) {
+        int temp_cs = score;
         int count = 0;
         while (temp_cs != 0) {
             count++;
@@ -63,26 +46,33 @@ private:
         for (int i = 0; i < std::min(6, 7 - count); i++) {
             verdict += "0";
         }
-        draw_raw_text(GameText::Active::score_text, verdict + std::to_string(current_score));
+        verdict += std::to_string(score);
+        return verdict;
+    }
+
+    void render_all_active_text() {
+        window.draw(GameText::Active::song_name_text.to_text(music_name));
+        window.draw(GameText::Active::difficulty_text.to_text(difficulty));
+        window.draw(GameText::Active::score_text.to_text(score_to_string(current_score)));
 
         if (current_combo >= GameWindow::ScoreCalculations::COMBO_VISIBLE_LIMIT) {
-            draw_raw_text(GameText::Active::combo_text, std::to_string((int)current_combo) + " COMBO");
+            window.draw(GameText::Active::combo_text.to_text(std::to_string((int)current_combo) + " COMBO"));
         }
 
         if (is_paused) {
-            draw_raw_text(GameText::Active::perfect_text, "Perfect: " + std::to_string((int)Lane::perfect));
-            draw_raw_text(GameText::Active::good_text, "Good: " + std::to_string((int)Lane::good));
-            draw_raw_text(GameText::Active::bad_text, "Bad: " + std::to_string((int)Lane::bad));
-            draw_raw_text(GameText::Active::miss_text, "Miss: " + std::to_string((int)Lane::miss));
-            draw_raw_text(GameText::Active::max_combo_text, "Max combo: " + std::to_string((int)max_combo));
-            draw_raw_text(GameText::Active::acc_text, "Acc: " + std::to_string(acc / Lane::total * note_count * 100) + "%");
-            draw_raw_text(GameText::Active::early_text, "Early: " + std::to_string((int)Lane::early));
-            draw_raw_text(GameText::Active::late_text, "Late: " + std::to_string((int)Lane::late));
+            window.draw(GameText::Active::perfect_text.to_text("Perfect: " + std::to_string((int)Lane::perfect)));
+            window.draw(GameText::Active::good_text.to_text("Good: " + std::to_string((int)Lane::good)));
+            window.draw(GameText::Active::bad_text.to_text("Bad: " + std::to_string((int)Lane::bad)));
+            window.draw(GameText::Active::miss_text.to_text("Miss: " + std::to_string((int)Lane::miss)));
+            window.draw(GameText::Active::max_combo_text.to_text("Max combo: " + std::to_string((int)max_combo)));
+            window.draw(GameText::Active::acc_text.to_text("Acc: " + std::to_string(acc / Lane::total * note_count * 100) + "%"));
+            window.draw(GameText::Active::early_text.to_text("Early: " + std::to_string((int)Lane::early)));
+            window.draw(GameText::Active::late_text.to_text("Late: " + std::to_string((int)Lane::late)));
             if (pause_count_down_timer < 0) {
-                draw_raw_text(GameText::Active::game_paused_text, GameWindow::GameVerdicts::GAME_PAUSE_VERDICT);
+                window.draw(GameText::Active::game_paused_text.to_text(GameWindow::GameVerdicts::GAME_PAUSE_VERDICT));
             }
             else {
-                draw_raw_text(GameText::Active::game_paused_text, std::to_string((int)pause_count_down_timer + 1));
+                window.draw(GameText::Active::game_paused_text.to_text(std::to_string((int)pause_count_down_timer + 1)));
                 pause_count_down_timer -= GameWindow::Time::WINDOW_TIME_TICK;
                 if (pause_count_down_timer < 0) {
                     is_paused = false;
@@ -90,7 +80,7 @@ private:
             }
         }
         if (is_autoplay) {
-            draw_raw_text(GameText::Active::autoplay_text, GameWindow::GameVerdicts::AUTOPLAY_VERDICT);
+            window.draw(GameText::Active::autoplay_text.to_text(GameWindow::GameVerdicts::AUTOPLAY_VERDICT));
         }
     }
 
@@ -135,6 +125,8 @@ private:
 
     void draw_active_screen() {
         window.clear();
+        window.draw(background);
+
         for (int i = 0; i < 9; i++) {
             visible_vertical_judgement_line[i] = false;
         }
@@ -213,7 +205,8 @@ private:
     }
 
     void draw_result_screen() {
-
+        window.clear();
+        window.display();
     }
 
 public:
@@ -223,6 +216,37 @@ public:
             abort();
         }
         music.setBuffer(buffer);
+
+        if (!chart_image.loadFromFile("Charts\\" + collection_name + "\\" + song_name + "\\illustration.png")) {
+            if (!chart_image.loadFromFile("Charts\\" + collection_name + "\\" + song_name + "\\illustration.jpg")) {
+                std::cerr << "Warning: illustration file corrupted or not found.\n";
+                std::cerr << "Using default black screen for illustration\n";
+                chart_image.create(GameWindow::GET_INITIAL_VIDEO_MODE().width, GameWindow::GET_INITIAL_VIDEO_MODE().height);
+            }
+        }
+
+        for (int i = 0; i < chart_image.getSize().x; i++) {
+            for (int j = 0; j < chart_image.getSize().y; j++) {
+                chart_image.setPixel(
+                    i, j,
+                    sf::Color(
+                        chart_image.getPixel(i, j).r,
+                        chart_image.getPixel(i, j).g,
+                        chart_image.getPixel(i, j).b,
+                        chart_image.getPixel(i, j).a / GameWindow::Colors::IMAGE_OPACITY_FACTOR
+                    )
+                );
+            }
+        }
+
+        chart_illustration.loadFromImage(chart_image);
+        background.setTexture(chart_illustration);
+        background.setOrigin(background.getGlobalBounds().width / 2.0f, background.getGlobalBounds().height / 2.0f);
+        background.setScale(sf::Vector2f(
+            (double)GameWindow::GET_INITIAL_VIDEO_MODE().width / (double)chart_image.getSize().x,
+            (double)GameWindow::GET_INITIAL_VIDEO_MODE().height / (double)chart_image.getSize().y
+        ));
+        background.setPosition(GameWindow::GET_INITIAL_VIDEO_MODE().width / 2.0f, GameWindow::GET_INITIAL_VIDEO_MODE().height / 2.0f);
 
         std::ifstream chart("Charts\\" + collection_name + "\\" + song_name + "\\" + d + ".txt", std::ios::in);
         if (!chart.is_open()) {
