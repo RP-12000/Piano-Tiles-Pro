@@ -4,14 +4,14 @@
 class Note {
 private:
 	int lane_num;
-	double perfect_hit_time, fall_time, duration, note_height;
+	double perfect_hit_time, fall_position_ratio, fall_time, duration, note_height;
 	bool is_sync;
 	double actual_hit_time = -1;
 	
 	int status = 4;
 
 	double dist_from_judgement_line(double time = GameWindow::Time::CURRENT_TIME) const {
-		double dist = (GameWindow::Dimensions::WINDOW_HEIGHT - GameWindow::Dimensions::HORIZONTAL_JUDGEMENT_SPACING) *
+		double dist = (GameWindow::Dimensions::WINDOW_HEIGHT - GameWindow::Dimensions::HORIZONTAL_JUDGEMENT_SPACING) * fall_position_ratio *
 			(perfect_hit_time - time) / fall_time;
 		if (duration != 0) {
 			dist = std::max(dist, 0.0);
@@ -24,8 +24,9 @@ private:
 	}
 
 public:
-	Note(double p, int l, double f, double d, double fall_time_ratio, bool s = false) {
+	Note(double p, int l, double f, double fpr, double d, double fall_time_ratio, bool s = false) {
 		perfect_hit_time = p;
+		fall_position_ratio = fpr;
 		fall_time = f;
 		duration = d;
 		is_sync = s;
