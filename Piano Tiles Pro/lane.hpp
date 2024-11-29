@@ -37,10 +37,11 @@ private:
 				right_pointer++;
 			}
 		}
+		total = perfect + good + bad + miss;
 	}
 
 public:
-	static double miss, bad, good, perfect, early, late;
+	static double miss, bad, good, perfect, early, late, total;
 
 	Lane(int l, sf::Keyboard::Scancode c) {
 		lane_num = l;
@@ -121,3 +122,4 @@ double Lane::good = 0.0;
 double Lane::early = 0.0;
 double Lane::late = 0.0;
 double Lane::perfect = 0.0;
+double Lane::total = 0.0;

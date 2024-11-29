@@ -50,9 +50,9 @@ private:
         window.draw(t);
     }
 
-    void render_all_text() {
-        draw_raw_text(GameText::song_name_text, music_name);
-        draw_raw_text(GameText::difficulty_text, difficulty);
+    void render_all_active_text() {
+        draw_raw_text(GameText::Active::song_name_text, music_name);
+        draw_raw_text(GameText::Active::difficulty_text, difficulty);
         int temp_cs = current_score;
         int count = 0;
         while (temp_cs != 0) {
@@ -63,24 +63,34 @@ private:
         for (int i = 0; i < std::min(6, 7 - count); i++) {
             verdict += "0";
         }
-        draw_raw_text(GameText::score_text, verdict + std::to_string(current_score));
+        draw_raw_text(GameText::Active::score_text, verdict + std::to_string(current_score));
 
         if (current_combo >= GameWindow::ScoreCalculations::COMBO_VISIBLE_LIMIT) {
-            draw_raw_text(GameText::combo_text, std::to_string((int)current_combo) + " COMBO");
+            draw_raw_text(GameText::Active::combo_text, std::to_string((int)current_combo) + " COMBO");
         }
 
-        if (is_paused && pause_count_down_timer < 0) {
-            draw_raw_text(GameText::game_paused_text, GameWindow::GameVerdicts::GAME_PAUSE_VERDICT);
-        }
-        if (pause_count_down_timer >= 0) {
-            draw_raw_text(GameText::game_paused_text, std::to_string((int)pause_count_down_timer + 1));
-            pause_count_down_timer -= GameWindow::Time::WINDOW_TIME_TICK;
+        if (is_paused) {
+            draw_raw_text(GameText::Active::perfect_text, "Perfect: " + std::to_string((int)Lane::perfect));
+            draw_raw_text(GameText::Active::good_text, "Good: " + std::to_string((int)Lane::good));
+            draw_raw_text(GameText::Active::bad_text, "Bad: " + std::to_string((int)Lane::bad));
+            draw_raw_text(GameText::Active::miss_text, "Miss: " + std::to_string((int)Lane::miss));
+            draw_raw_text(GameText::Active::max_combo_text, "Max combo: " + std::to_string((int)max_combo));
+            draw_raw_text(GameText::Active::acc_text, "Acc: " + std::to_string(acc / Lane::total * note_count * 100) + "%");
+            draw_raw_text(GameText::Active::early_text, "Early: " + std::to_string((int)Lane::early));
+            draw_raw_text(GameText::Active::late_text, "Late: " + std::to_string((int)Lane::late));
             if (pause_count_down_timer < 0) {
-                is_paused = false;
+                draw_raw_text(GameText::Active::game_paused_text, GameWindow::GameVerdicts::GAME_PAUSE_VERDICT);
+            }
+            else {
+                draw_raw_text(GameText::Active::game_paused_text, std::to_string((int)pause_count_down_timer + 1));
+                pause_count_down_timer -= GameWindow::Time::WINDOW_TIME_TICK;
+                if (pause_count_down_timer < 0) {
+                    is_paused = false;
+                }
             }
         }
         if (is_autoplay) {
-            draw_raw_text(GameText::autoplay_text, GameWindow::GameVerdicts::AUTOPLAY_VERDICT);
+            draw_raw_text(GameText::Active::autoplay_text, GameWindow::GameVerdicts::AUTOPLAY_VERDICT);
         }
     }
 
@@ -197,7 +207,7 @@ private:
         window.draw(progress_bar);
 
         update_score();
-        render_all_text();
+        render_all_active_text();
 
         window.display();
     }
