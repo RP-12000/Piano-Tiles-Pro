@@ -14,9 +14,9 @@ private:
     sf::Sound music;
     std::vector<Lane> lanes;
 
-    sf::Image chart_image;
-    sf::Texture chart_illustration;
-    sf::Sprite background;
+    sf::Image chart_image, result_chart_image;
+    sf::Texture chart_illustration, result_chart_illustration;
+    sf::Sprite background, result_background;
 
     std::string music_name, composer, chart_design, illustration;
     double chart_constant;
@@ -51,7 +51,9 @@ private:
     }
 
     void render_all_active_text() {
-        window.draw(GameText::Active::song_name_text.to_text(music_name));
+        (is_autoplay)
+            ? (window.draw(GameText::Active::song_name_text.to_text(music_name + GameWindow::GameVerdicts::AUTOPLAY_VERDICT)))
+            : (window.draw(GameText::Active::song_name_text.to_text(music_name)));
         window.draw(GameText::Active::difficulty_text.to_text(difficulty));
         window.draw(GameText::Active::score_text.to_text(score_to_string(current_score)));
 
@@ -79,12 +81,13 @@ private:
                 }
             }
         }
-        if (is_autoplay) {
-            window.draw(GameText::Active::autoplay_text.to_text(GameWindow::GameVerdicts::AUTOPLAY_VERDICT));
-        }
     }
 
-    void reset_all_progress() {
+    void restart() {
+        music.stop();
+        for (Lane& l : lanes) {
+            l.restart();
+        }
         last_miss = 0.0;
         last_bad = 0.0;
         last_good = 0.0;
@@ -100,14 +103,6 @@ private:
         is_game_over = false;
         has_restarted = true;
         pause_count_down_timer = -GameWindow::Time::WINDOW_TIME_TICK;
-    }
-
-    void restart() {
-        music.stop();
-        for (Lane& l : lanes) {
-            l.restart();
-        }
-        reset_all_progress();
     }
 
     void update_score(){
@@ -206,6 +201,46 @@ private:
 
     void draw_result_screen() {
         window.clear();
+        window.draw(result_background);
+        (is_autoplay)
+            ? (window.draw(GameText::Passive::song_name_text.to_text(music_name + GameWindow::GameVerdicts::AUTOPLAY_VERDICT)))
+            : (window.draw(GameText::Passive::song_name_text.to_text(music_name)));
+        window.draw(GameText::Passive::difficulty_text.to_text(difficulty));
+        window.draw(GameText::Passive::score_text.to_text(score_to_string(current_score)));
+        window.draw(GameText::Passive::perfect_text.to_text("Perfect: " + std::to_string((int)Lane::perfect)));
+        window.draw(GameText::Passive::good_text.to_text("Good: " + std::to_string((int)Lane::good)));
+        window.draw(GameText::Passive::bad_text.to_text("Bad: " + std::to_string((int)Lane::bad)));
+        window.draw(GameText::Passive::miss_text.to_text("Miss: " + std::to_string((int)Lane::miss)));
+        window.draw(GameText::Passive::max_combo_text.to_text("Max combo: " + std::to_string((int)max_combo)));
+        window.draw(GameText::Passive::acc_text.to_text("Acc: " + std::to_string(acc / Lane::total * note_count * 100) + "%"));
+        window.draw(GameText::Passive::early_text.to_text("Early: " + std::to_string((int)Lane::early)));
+        window.draw(GameText::Passive::late_text.to_text("Late: " + std::to_string((int)Lane::late)));
+        window.draw(GameText::Passive::game_paused_text.to_text(GameWindow::GameVerdicts::FINAL_GAME_PAUSE_VERDICT));
+        std::basic_string<sf::Uint32> s = { 0x03C6 };
+        if (Lane::perfect == Lane::total) {
+            window.draw(GameText::Passive::grade_texts[2].to_text(s));
+        }
+        else if (Lane::perfect + Lane::good == Lane::total) {
+            window.draw(GameText::Passive::grade_texts[1].to_text("V"));
+        }
+        else if (current_score < GameWindow::ScoreCalculations::C_LEVEL) {
+            window.draw(GameText::Passive::grade_texts[0].to_text("F"));
+        }
+        else if (current_score < GameWindow::ScoreCalculations::B_LEVEL) {
+            window.draw(GameText::Passive::grade_texts[0].to_text("C"));
+        }
+        else if (current_score < GameWindow::ScoreCalculations::A_LEVEL) {
+            window.draw(GameText::Passive::grade_texts[0].to_text("B"));
+        }
+        else if (current_score < GameWindow::ScoreCalculations::S_LEVEL) {
+            window.draw(GameText::Passive::grade_texts[0].to_text("A"));
+        }
+        else if (current_score < GameWindow::ScoreCalculations::V_LEVEL) {
+            window.draw(GameText::Passive::grade_texts[0].to_text("S"));
+        }
+        else {
+            window.draw(GameText::Passive::grade_texts[0].to_text("V"));
+        }
         window.display();
     }
 
@@ -225,6 +260,7 @@ public:
             }
         }
 
+        result_chart_image = chart_image;
         for (int i = 0; i < chart_image.getSize().x; i++) {
             for (int j = 0; j < chart_image.getSize().y; j++) {
                 chart_image.setPixel(
@@ -238,15 +274,21 @@ public:
                 );
             }
         }
-
         chart_illustration.loadFromImage(chart_image);
         background.setTexture(chart_illustration);
-        background.setOrigin(background.getGlobalBounds().width / 2.0f, background.getGlobalBounds().height / 2.0f);
         background.setScale(sf::Vector2f(
             (double)GameWindow::GET_INITIAL_VIDEO_MODE().width / (double)chart_image.getSize().x,
             (double)GameWindow::GET_INITIAL_VIDEO_MODE().height / (double)chart_image.getSize().y
         ));
-        background.setPosition(GameWindow::GET_INITIAL_VIDEO_MODE().width / 2.0f, GameWindow::GET_INITIAL_VIDEO_MODE().height / 2.0f);
+        background.setPosition(0, 0);
+
+        result_chart_illustration.loadFromImage(result_chart_image);
+        result_background.setTexture(result_chart_illustration);
+        result_background.setScale(sf::Vector2f(
+            GameText::Image::result_image_width / (double)result_chart_image.getSize().x,
+            GameText::Image::result_image_height / (double)result_chart_image.getSize().y
+        ));
+        result_background.setPosition(GameText::Image::result_image_position);
 
         std::ifstream chart("Charts\\" + collection_name + "\\" + song_name + "\\" + d + ".txt", std::ios::in);
         if (!chart.is_open()) {
@@ -302,7 +344,7 @@ public:
             l.sort_note();
         }
 
-        reset_all_progress();
+        restart();
         visible_vertical_judgement_line.resize(9);
         visible_horizontal_judgement_line.resize(16);
         window.create(GameWindow::GET_INITIAL_VIDEO_MODE(), "Piano Tiles Pro");
@@ -313,7 +355,7 @@ public:
 
     void autoplay() {
         window.setVisible(true);
-        is_autoplay = true;
+        is_autoplay = false;
         restart();
         while (window.isOpen())
         {
@@ -472,9 +514,7 @@ public:
             }
             else {
                 is_game_over = true;
-                window.clear();
                 draw_result_screen();
-                window.display();
             }
         }
     }

@@ -111,6 +111,8 @@ public:
 		bad = 0.0;
 		good = 0.0;
 		perfect = 0.0;
+		early = 0.0;
+		late = 0.0;
 		for (Note& n : lane_notes)
 			n.reset();
 	}

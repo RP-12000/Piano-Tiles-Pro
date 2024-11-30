@@ -91,12 +91,18 @@ public:
 		inline static const double COMBO_VISIBLE_LIMIT = 3;
 		inline static const double COMBO_PERCENTAGE = 0.9;
 		inline static const double GOOD_SCORE_PERCENTAGE = 0.65;
+		inline static const int C_LEVEL = 700000;
+		inline static const int B_LEVEL = 820000;
+		inline static const int A_LEVEL = 880000;
+		inline static const int S_LEVEL = 920000;
+		inline static const int V_LEVEL = 960000;
 	};
 
 	class GameVerdicts {
 	public:
 		inline static const std::string GAME_PAUSE_VERDICT = "Game Paused\nPress space to continue\nPress r to restart";
-		inline static const std::string AUTOPLAY_VERDICT = "[Autoplay]";
+		inline static const std::string AUTOPLAY_VERDICT = " [Autoplay]";
+		inline static const std::string FINAL_GAME_PAUSE_VERDICT = "Press r to restart. Press Esc to go back.";
 	};
 
 	class Colors {
