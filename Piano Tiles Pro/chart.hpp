@@ -34,28 +34,14 @@ private:
     std::vector<bool> visible_vertical_judgement_line;
     std::vector<bool> visible_horizontal_judgement_line;
     std::vector<sf::RectangleShape> notes_to_be_drawn;
-
-    std::string score_to_string(int score) {
-        int temp_cs = score;
-        int count = 0;
-        while (temp_cs != 0) {
-            count++;
-            temp_cs = temp_cs / 10;
-        }
-        std::string verdict = "";
-        for (int i = 0; i < std::min(6, 7 - count); i++) {
-            verdict += "0";
-        }
-        verdict += std::to_string(score);
-        return verdict;
-    }
+    std::vector<sf::Text> text_to_be_drawn;
 
     void render_all_active_text() {
         (is_autoplay)
             ? (window.draw(GameText::Active::song_name_text.to_text(music_name + GameWindow::GameVerdicts::AUTOPLAY_VERDICT)))
             : (window.draw(GameText::Active::song_name_text.to_text(music_name)));
         window.draw(GameText::Active::difficulty_text.to_text(difficulty));
-        window.draw(GameText::Active::score_text.to_text(score_to_string(current_score)));
+        window.draw(GameText::Active::score_text.to_text(GameWindow::ScoreCalculations::score_to_string(current_score)));
 
         if (current_combo >= GameWindow::ScoreCalculations::COMBO_VISIBLE_LIMIT) {
             window.draw(GameText::Active::combo_text.to_text(std::to_string((int)current_combo) + " COMBO"));
@@ -103,6 +89,10 @@ private:
         is_game_over = false;
         has_restarted = true;
         pause_count_down_timer = -GameWindow::Time::WINDOW_TIME_TICK;
+        TextRenderTime::current_stage = 0;
+        for (double& t : TextRenderTime::stage_timer) {
+            t = 0.0;
+        }
     }
 
     void update_score(){
@@ -199,6 +189,12 @@ private:
         window.display();
     }
 
+    void render_result_text() {
+        for (sf::Text text : text_to_be_drawn) {
+            window.draw(text);
+        }
+    }
+
     void draw_result_screen() {
         window.clear();
         window.draw(result_background);
@@ -206,41 +202,31 @@ private:
             ? (window.draw(GameText::Passive::song_name_text.to_text(music_name + GameWindow::GameVerdicts::AUTOPLAY_VERDICT)))
             : (window.draw(GameText::Passive::song_name_text.to_text(music_name)));
         window.draw(GameText::Passive::difficulty_text.to_text(difficulty));
-        window.draw(GameText::Passive::score_text.to_text(score_to_string(current_score)));
-        window.draw(GameText::Passive::perfect_text.to_text("Perfect: " + std::to_string((int)Lane::perfect)));
-        window.draw(GameText::Passive::good_text.to_text("Good: " + std::to_string((int)Lane::good)));
-        window.draw(GameText::Passive::bad_text.to_text("Bad: " + std::to_string((int)Lane::bad)));
-        window.draw(GameText::Passive::miss_text.to_text("Miss: " + std::to_string((int)Lane::miss)));
-        window.draw(GameText::Passive::max_combo_text.to_text("Max combo: " + std::to_string((int)max_combo)));
-        window.draw(GameText::Passive::acc_text.to_text("Acc: " + std::to_string(acc / Lane::total * note_count * 100) + "%"));
-        window.draw(GameText::Passive::early_text.to_text("Early: " + std::to_string((int)Lane::early)));
-        window.draw(GameText::Passive::late_text.to_text("Late: " + std::to_string((int)Lane::late)));
-        window.draw(GameText::Passive::game_paused_text.to_text(GameWindow::GameVerdicts::FINAL_GAME_PAUSE_VERDICT));
-        std::basic_string<sf::Uint32> s = { 0x03C6 };
-        if (Lane::perfect == Lane::total) {
-            window.draw(GameText::Passive::grade_texts[2].to_text(s));
+        if (
+            TextRenderTime::stage_timer[TextRenderTime::current_stage] >
+            TextRenderTime::stage_duration[TextRenderTime::current_stage] && 
+            TextRenderTime::current_stage < TextRenderTime::stage_duration.size() - 1) {
+            TextRenderTime::current_stage++;
         }
-        else if (Lane::perfect + Lane::good == Lane::total) {
-            window.draw(GameText::Passive::grade_texts[1].to_text("V"));
+        text_to_be_drawn.clear();
+        switch (TextRenderTime::current_stage) {
+        case 0:
+            text_to_be_drawn = ResultScreenRenderation::first_stage();
+            break;
+        case 1:
+            text_to_be_drawn = ResultScreenRenderation::second_stage(current_score, max_combo, acc, note_count);
+            break;
+        case 2:
+            text_to_be_drawn = ResultScreenRenderation::third_stage(current_score, max_combo, acc, note_count);
+            break;
+        case 3:
+            text_to_be_drawn = ResultScreenRenderation::fourth_stage(current_score, max_combo, acc, note_count);
+            break;
+        default:
+            break;
         }
-        else if (current_score < GameWindow::ScoreCalculations::C_LEVEL) {
-            window.draw(GameText::Passive::grade_texts[0].to_text("F"));
-        }
-        else if (current_score < GameWindow::ScoreCalculations::B_LEVEL) {
-            window.draw(GameText::Passive::grade_texts[0].to_text("C"));
-        }
-        else if (current_score < GameWindow::ScoreCalculations::A_LEVEL) {
-            window.draw(GameText::Passive::grade_texts[0].to_text("B"));
-        }
-        else if (current_score < GameWindow::ScoreCalculations::S_LEVEL) {
-            window.draw(GameText::Passive::grade_texts[0].to_text("A"));
-        }
-        else if (current_score < GameWindow::ScoreCalculations::V_LEVEL) {
-            window.draw(GameText::Passive::grade_texts[0].to_text("S"));
-        }
-        else {
-            window.draw(GameText::Passive::grade_texts[0].to_text("V"));
-        }
+        render_result_text();
+        TextRenderTime::stage_timer[TextRenderTime::current_stage] += GameWindow::Time::WINDOW_TIME_TICK;
         window.display();
     }
 
@@ -410,7 +396,7 @@ public:
                     has_restarted = false;
                 }
             }
-            if (GameWindow::Time::CURRENT_TIME <= buffer.getDuration().asSeconds()) {
+            if (GameWindow::Time::CURRENT_TIME <= buffer.getDuration().asSeconds() && !is_game_over) {
                 for (Lane& l : lanes) {
                     if (!is_paused) {
                         l.autoplay();

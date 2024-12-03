@@ -96,6 +96,20 @@ public:
 		inline static const int A_LEVEL = 880000;
 		inline static const int S_LEVEL = 920000;
 		inline static const int V_LEVEL = 960000;
+		static sf::String score_to_string(int score) {
+			int temp_cs = score;
+			int count = 0;
+			while (temp_cs != 0) {
+				count++;
+				temp_cs = temp_cs / 10;
+			}
+			std::string verdict = "";
+			for (int i = 0; i < std::min(6, 7 - count); i++) {
+				verdict += "0";
+			}
+			verdict += std::to_string(score);
+			return verdict;
+		}
 	};
 
 	class GameVerdicts {
