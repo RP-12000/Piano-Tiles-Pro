@@ -5,6 +5,7 @@
 #include <fstream>
 #include <string>
 #include <cmath>
+#include <chrono>
 #include <SFML/Audio.hpp>
 
 class Chart {
@@ -36,6 +37,28 @@ private:
     std::vector<sf::RectangleShape> notes_to_be_drawn;
     std::vector<sf::Text> text_to_be_drawn;
 
+    std::chrono::high_resolution_clock::time_point start, end;
+
+    inline void update_all_timers() {
+        end = std::chrono::high_resolution_clock::now();
+        double time_elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() / (double)1e9;
+        if (!is_autoplay) {
+            last_perfect = Lane::perfect;
+            last_good = Lane::good;
+            last_bad = Lane::bad;
+            last_miss = Lane::miss;
+        }
+        if (!is_paused) {
+            GameWindow::Time::CURRENT_TIME += time_elapsed;
+        }
+        if (pause_count_down_timer >= 0) {
+            pause_count_down_timer -= time_elapsed;
+        }
+        if (is_game_over) {
+            TextRenderTime::stage_timer[TextRenderTime::current_stage] += time_elapsed;
+        }
+    }
+
     void render_all_active_text() {
         (is_autoplay)
             ? (window.draw(GameText::Active::song_name_text.to_text(music_name + GameWindow::GameVerdicts::AUTOPLAY_VERDICT)))
@@ -61,7 +84,6 @@ private:
             }
             else {
                 window.draw(GameText::Active::game_paused_text.to_text(std::to_string((int)pause_count_down_timer + 1)));
-                pause_count_down_timer -= GameWindow::Time::WINDOW_TIME_TICK;
                 if (pause_count_down_timer < 0) {
                     is_paused = false;
                 }
@@ -88,7 +110,7 @@ private:
         is_paused = false;
         is_game_over = false;
         has_restarted = true;
-        pause_count_down_timer = -GameWindow::Time::WINDOW_TIME_TICK;
+        pause_count_down_timer = -0.1;
         TextRenderTime::current_stage = 0;
         for (double& t : TextRenderTime::stage_timer) {
             t = 0.0;
@@ -226,10 +248,9 @@ private:
             break;
         }
         render_result_text();
-        TextRenderTime::stage_timer[TextRenderTime::current_stage] += GameWindow::Time::WINDOW_TIME_TICK;
         window.display();
     }
-
+    
 public:
     Chart(std::string collection_name, std::string song_name, std::string d) {
         if (!buffer.loadFromFile("Charts\\" + collection_name + "\\" + song_name + "\\audio.mp3")) {
@@ -335,16 +356,17 @@ public:
         visible_horizontal_judgement_line.resize(16);
         window.create(GameWindow::GET_INITIAL_VIDEO_MODE(), "Piano Tiles Pro");
         window.setVisible(false);
-        window.setFramerateLimit(GameWindow::Time::WINDOW_FRAMERATE);
+        window.setVerticalSyncEnabled(true);
         window.setKeyRepeatEnabled(false);
     }
 
     void autoplay() {
         window.setVisible(true);
-        is_autoplay = false;
+        is_autoplay = true;
         restart();
         while (window.isOpen())
         {
+            start = std::chrono::high_resolution_clock::now();
             sf::Event event;
             while (window.pollEvent(event))
             {
@@ -365,7 +387,7 @@ public:
                         break;
                     case sf::Keyboard::Scan::Space:
                         if (is_paused) {
-                            pause_count_down_timer = 2.999999;
+                            pause_count_down_timer = 3;
                         }
                         else {
                             is_paused = true;
@@ -403,15 +425,12 @@ public:
                     }
                 }
                 draw_active_screen();
-
-                if (!is_paused) {
-                    GameWindow::Time::CURRENT_TIME += GameWindow::Time::WINDOW_TIME_TICK;
-                }
             }
             else {
                 is_game_over = true;
                 draw_result_screen();
             }
+            update_all_timers();
         }
         is_autoplay = false;
     }
@@ -421,6 +440,7 @@ public:
         restart();
         while (window.isOpen())
         {
+            start = std::chrono::high_resolution_clock::now();
             sf::Event event;
             bool has_updated = false;
             while (window.pollEvent(event))
@@ -482,26 +502,19 @@ public:
                     has_restarted = false;
                 }
             }
-            if (GameWindow::Time::CURRENT_TIME <= buffer.getDuration().asSeconds()) {
+            if (GameWindow::Time::CURRENT_TIME <= buffer.getDuration().asSeconds() && !is_game_over) {
                 if (!has_updated) {
                     for (Lane& l : lanes) {
                         l.update();
                     }
                 }
                 draw_active_screen();
-
-                if (!is_paused) {
-                    GameWindow::Time::CURRENT_TIME += GameWindow::Time::WINDOW_TIME_TICK;
-                    last_perfect = Lane::perfect;
-                    last_good = Lane::good;
-                    last_bad = Lane::bad;
-                    last_miss = Lane::miss;
-                }
             }
             else {
                 is_game_over = true;
                 draw_result_screen();
             }
+            update_all_timers();
         }
     }
 };

@@ -207,7 +207,7 @@ public:
         std::vector<sf::Text> texts;
         texts.push_back(GameText::Passive::score_text.to_text(GameWindow::ScoreCalculations::score_to_string(current_score)));
         texts.push_back(GameText::Passive::perfect_text.to_text(std::to_string((int)Lane::perfect) + " Perfect"));
-        texts.push_back(GameText::Passive::good_text.to_text(std::to_string((int)Lane::good) + "Good"));
+        texts.push_back(GameText::Passive::good_text.to_text(std::to_string((int)Lane::good) + " Good"));
         texts.push_back(GameText::Passive::bad_text.to_text(std::to_string((int)Lane::bad) + " Bad"));
         texts.push_back(GameText::Passive::miss_text.to_text(std::to_string((int)Lane::miss) + " Miss"));
         texts.push_back(GameText::Passive::max_combo_text.to_text(std::to_string((int)max_combo) + " Max combo"));

@@ -36,15 +36,15 @@ private:
 	}
 
 public:
-	inline static sf::VideoMode GET_INITIAL_VIDEO_MODE() {
+	static sf::VideoMode GET_INITIAL_VIDEO_MODE() {
 		return INITIAL_VIDEO_MODE;
 	}
 
-	inline static double GET_ABSOLUTE_REFERENCE_WINDOW_WIDTH() {
+	static double GET_ABSOLUTE_REFERENCE_WINDOW_WIDTH() {
 		return ABS_WINDOW_WIDTH;
 	}
 
-	inline static double GET_ABSOLUTE_REFERENCE_WINDOW_HEIGHT() {
+	static double GET_ABSOLUTE_REFERENCE_WINDOW_HEIGHT() {
 		return ABS_WINDOW_HEIGHT;
 	}
 
@@ -61,19 +61,18 @@ public:
 		inline static double NOTE_OUTLINE_THICKNESS = ABS_NOTE_OUTLINE_THICKNESS / ABS_WINDOW_HEIGHT * WINDOW_HEIGHT;
 		inline static double PROGRESS_BAR_THICKNESS = ABS_PROGRESS_BAR_THICKNESS / ABS_WINDOW_HEIGHT * WINDOW_HEIGHT;
 		inline static double HORIZONTAL_JUDGEMENT_SPACING = ABS_HORIZONTAL_JUDGEMENT_SPACING / ABS_WINDOW_HEIGHT * WINDOW_HEIGHT;
-		inline static double GET_VERTICAL_JUDGEMENT_LINE_POS(int params) {
+		static double GET_VERTICAL_JUDGEMENT_LINE_POS(int params) {
 			return ABS_VERTICAL_JUDGEMENT_LINE_POS[params] / ABS_WINDOW_WIDTH * WINDOW_WIDTH;
 		}
-		inline static double GET_HORIZONTAL_JUDGEMENT_LINE_POS(int params) {
+		static double GET_HORIZONTAL_JUDGEMENT_LINE_POS(int params) {
 			return ABS_HORIZONTAL_JUDGEMENT_LINE_POS[params] / ABS_WINDOW_HEIGHT * WINDOW_HEIGHT;
 		}
 	};
 
 	class Time {
 	public:
-		inline static unsigned int WINDOW_FRAMERATE = 120;
-		inline static double WINDOW_TIME_TICK = 1.0 / (double)(GameWindow::Time::WINDOW_FRAMERATE);
 		inline static double CURRENT_TIME = 0.0;
+		inline static double PAUSED_REST_TIME = 3;
 	};
 
 	class JudgementLimits {
