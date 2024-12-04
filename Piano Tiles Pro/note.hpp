@@ -56,10 +56,37 @@ public:
 		return duration;
 	}
 
-	sf::RectangleShape toRect(bool is_paused) const {
+	sf::RectangleShape toDurationRect(bool is_paused) const {
 		sf::RectangleShape r;
+		r.setSize(sf::Vector2f(
+			GameWindow::Dimensions::HOLD_NOTE_WIDTH,
+			note_height - std::max(0.0, note_height / duration * (GameWindow::Time::CURRENT_TIME - perfect_hit_time))
+		));
+		if (status == 3) {
+			r.setFillColor(GameWindow::Colors::HOLD_NOTE_COLOR[1]);
+		}
+		else {
+			r.setFillColor(GameWindow::Colors::HOLD_NOTE_COLOR[is_paused]);
+		}
+		if (lane_num < 8) {
+			r.setOrigin(sf::Vector2f(r.getGlobalBounds().width / 2.0f, r.getGlobalBounds().height));
+		}
+		else {
+			r.setOrigin(sf::Vector2f(r.getGlobalBounds().width / 2.0f, 0));
+		}
+		r.setPosition(
+			sf::Vector2f(
+				GameWindow::Dimensions::GET_VERTICAL_JUDGEMENT_LINE_POS(lane_num % 8) + GameWindow::Dimensions::VERTICAL_JUDGEMENT_SPACING / 2,
+				dist_from_judgement_line()
+			)
+		);
+		return r;
+	}
+
+	sf::RectangleShape toBottomRect(bool is_paused) const {
+		sf::RectangleShape r;
+		r.setSize(sf::Vector2f(GameWindow::Dimensions::NOTE_WIDTH, GameWindow::Dimensions::TAP_NOTE_HEIGHT));
 		if (duration == 0) {
-			r.setSize(sf::Vector2f(GameWindow::Dimensions::NOTE_WIDTH, GameWindow::Dimensions::TAP_NOTE_HEIGHT));
 			r.setFillColor(sf::Color(
 				GameWindow::Colors::TAP_NOTE_COLOR[is_paused].r,
 				GameWindow::Colors::TAP_NOTE_COLOR[is_paused].g,
@@ -67,35 +94,33 @@ public:
 				std::max(
 					0.0,
 					GameWindow::Colors::TAP_NOTE_COLOR[is_paused].a -
-					std::max(0.0, GameWindow::Colors::TAP_NOTE_COLOR[is_paused].a / GameWindow::JudgementLimits::GOOD_LIMIT*(GameWindow::Time::CURRENT_TIME-perfect_hit_time))
-				)
-			));
-			r.setOutlineColor(sf::Color(
-				GameWindow::Colors::SYNC_COLOR[is_paused].r,
-				GameWindow::Colors::SYNC_COLOR[is_paused].g,
-				GameWindow::Colors::SYNC_COLOR[is_paused].b,
-				std::max(
-					0.0,
-					GameWindow::Colors::SYNC_COLOR[is_paused].a -
-					std::max(0.0, GameWindow::Colors::SYNC_COLOR[is_paused].a / GameWindow::JudgementLimits::GOOD_LIMIT * (GameWindow::Time::CURRENT_TIME - perfect_hit_time))
+					std::max(0.0, GameWindow::Colors::TAP_NOTE_COLOR[is_paused].a / GameWindow::JudgementLimits::GOOD_LIMIT * (GameWindow::Time::CURRENT_TIME - perfect_hit_time))
 				)
 			));
 		}
 		else {
-			r.setSize(sf::Vector2f(
-				GameWindow::Dimensions::NOTE_WIDTH,
-				note_height - std::max(0.0, note_height / duration * (GameWindow::Time::CURRENT_TIME - perfect_hit_time))
+			r.setFillColor(sf::Color(
+				GameWindow::Colors::HOLD_NOTE_COLOR[is_paused].r,
+				GameWindow::Colors::HOLD_NOTE_COLOR[is_paused].g,
+				GameWindow::Colors::HOLD_NOTE_COLOR[is_paused].b,
+				std::max(
+					0.0,
+					GameWindow::Colors::HOLD_NOTE_COLOR[is_paused].a -
+					std::max(0.0, GameWindow::Colors::HOLD_NOTE_COLOR[is_paused].a / GameWindow::JudgementLimits::GOOD_LIMIT * (GameWindow::Time::CURRENT_TIME - perfect_hit_time))
+				)
 			));
-			if (status == 3) {
-				r.setFillColor(GameWindow::Colors::HOLD_NOTE_COLOR[1]);
-				r.setOutlineColor(GameWindow::Colors::SYNC_COLOR[1]);
-			}
-			else {
-				r.setFillColor(GameWindow::Colors::HOLD_NOTE_COLOR[is_paused]);
-				r.setOutlineColor(GameWindow::Colors::SYNC_COLOR[is_paused]);
-			}
 		}
-		if (duration == 0 || lane_num < 8) {
+		r.setOutlineColor(sf::Color(
+			GameWindow::Colors::SYNC_COLOR[is_paused].r,
+			GameWindow::Colors::SYNC_COLOR[is_paused].g,
+			GameWindow::Colors::SYNC_COLOR[is_paused].b,
+			std::max(
+				0.0,
+				GameWindow::Colors::SYNC_COLOR[is_paused].a -
+				std::max(0.0, GameWindow::Colors::SYNC_COLOR[is_paused].a / GameWindow::JudgementLimits::GOOD_LIMIT * (GameWindow::Time::CURRENT_TIME - perfect_hit_time))
+			)
+		));
+		if (lane_num < 8) {
 			r.setOrigin(sf::Vector2f(r.getGlobalBounds().width / 2.0f, r.getGlobalBounds().height));
 		}
 		else {

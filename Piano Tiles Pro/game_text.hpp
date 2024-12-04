@@ -72,6 +72,9 @@ public:
             RawText{ sf::Vector2f(1856, 560), 0, 33, sf::Color(255,255,255), 1 };
         inline static RawText late_text =
             RawText{ sf::Vector2f(1856, 600), 0, 33, sf::Color(255,255,255), 1 };
+
+        inline static RawText fps =
+            RawText{ sf::Vector2f(1900, 10), 0, 20, sf::Color(255,255,255), 1 };
     };
 
     class Passive {
@@ -225,7 +228,7 @@ public:
         std::vector<sf::Text> texts;
         texts.push_back(GameText::Passive::score_text.to_text(GameWindow::ScoreCalculations::score_to_string(current_score)));
         texts.push_back(GameText::Passive::perfect_text.to_text(std::to_string((int)Lane::perfect) + " Perfect"));
-        texts.push_back(GameText::Passive::good_text.to_text(std::to_string((int)Lane::good) + "Good"));
+        texts.push_back(GameText::Passive::good_text.to_text(std::to_string((int)Lane::good) + " Good"));
         texts.push_back(GameText::Passive::bad_text.to_text(std::to_string((int)Lane::bad) + " Bad"));
         texts.push_back(GameText::Passive::miss_text.to_text(std::to_string((int)Lane::miss) + " Miss"));
         texts.push_back(GameText::Passive::max_combo_text.to_text(std::to_string((int)max_combo) + " Max combo"));

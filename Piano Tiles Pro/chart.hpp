@@ -31,6 +31,9 @@ private:
     double total_good_until_last_miss, total_perfect_until_last_miss;
     bool is_paused, is_game_over, is_autoplay, has_restarted;
     double pause_count_down_timer;
+    double last_frame_time;
+    double current_fps_data;
+    int fps_renderation_count;
     bool has_updated;
 
     std::vector<bool> visible_vertical_judgement_line;
@@ -42,7 +45,7 @@ private:
 
     inline void update_all_timers() {
         end = std::chrono::high_resolution_clock::now();
-        double time_elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() / (double)1e9;
+        last_frame_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() / (double)1e9;
         if (!is_autoplay) {
             last_perfect = Lane::perfect;
             last_good = Lane::good;
@@ -50,16 +53,16 @@ private:
             last_miss = Lane::miss;
         }
         if (!is_paused) {
-            GameWindow::Time::CURRENT_TIME += time_elapsed;
+            GameWindow::Time::CURRENT_TIME += last_frame_time;
         }
         if (pause_count_down_timer >= 0) {
-            pause_count_down_timer -= time_elapsed;
+            pause_count_down_timer -= last_frame_time;
             if (pause_count_down_timer <= 0) {
                 is_paused = false;
             }
         }
         if (is_game_over) {
-            TextRenderTime::stage_timer[TextRenderTime::current_stage] += time_elapsed;
+            TextRenderTime::stage_timer[TextRenderTime::current_stage] += last_frame_time;
         }
     }
 
@@ -93,6 +96,7 @@ private:
                 }
             }
         }
+        window.draw(GameText::Active::fps.to_text(std::format("{:.0f}", 1.0 / last_frame_time) + " FPS"));
     }
 
     void process_key_stroke(sf::Event a){
@@ -156,7 +160,9 @@ private:
         is_game_over = false;
         has_restarted = true;
         has_updated = false;
-        pause_count_down_timer = -0.1;
+        pause_count_down_timer = 0.0;
+        last_frame_time = 0.0;
+        current_fps_data = NAN;
         TextRenderTime::current_stage = 0;
         for (double& t : TextRenderTime::stage_timer) {
             t = 0.0;
@@ -193,7 +199,7 @@ private:
                 for (const sf::RectangleShape& n : new_lane) {
                     notes_to_be_drawn.push_back(n);
                 }
-                if (lanes[i].is_visible()) {
+                if (!lanes[i].invisible()) {
                     visible_vertical_judgement_line[i % 8] = true;
                     visible_vertical_judgement_line[i % 8 + 1] = true;
                     visible_horizontal_judgement_line[i] = true;
@@ -253,7 +259,6 @@ private:
 
         update_score();
         render_all_active_text();
-
         window.display();
     }
 
@@ -343,7 +348,7 @@ public:
         ));
         result_background.setPosition(GameText::Image::result_image_position);
 
-        std::ifstream chart("Charts\\" + collection_name + "\\" + song_name + "\\" + d + ".txt", std::ios::in);
+        std::ifstream chart("Charts\\" + collection_name + "\\" + song_name + "\\" + d + "\\" + "chart.txt", std::ios::in);
         if (!chart.is_open()) {
             std::cerr << "Error: unable to find chart with " + d + " difficulty\n";
             abort();
@@ -395,6 +400,15 @@ public:
 
         for (Lane l : lanes) {
             l.sort_note();
+        }
+
+        chart.close();
+        std::ifstream judgement("Charts\\" + collection_name + "\\" + song_name + "\\" + d + "\\" + "jm.txt", std::ios::in);
+        int lane_id = -1;
+        double invisibility_start_time = -1, invisibility_duration = -1;
+        while (!judgement.eof()) {
+            judgement >> lane_id >> invisibility_start_time >> invisibility_duration;
+            lanes[lane_id].add_invisible_interval(invisibility_start_time, invisibility_duration);
         }
 
         restart();

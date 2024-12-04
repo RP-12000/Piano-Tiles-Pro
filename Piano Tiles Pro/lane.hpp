@@ -1,10 +1,11 @@
 #include "note.hpp"
+#include <cassert>
 
 class Lane {
 private:
 	std::vector<Note> lane_notes;
-	bool visibility;
-	int left_pointer, right_pointer, active_note_pointer;
+	std::vector<std::pair<double, double>> invisible_time;
+	int left_pointer, right_pointer, active_note_pointer, visibility_pointer;
 	int lane_num;
 
 	void update_pointers() {
@@ -37,6 +38,11 @@ private:
 				right_pointer++;
 			}
 		}
+		if (visibility_pointer < invisible_time.size()) {
+			if (invisible_time[visibility_pointer].first + invisible_time[visibility_pointer].second < GameWindow::Time::CURRENT_TIME) {
+				visibility_pointer++;
+			}
+		}
 		total = perfect + good + bad + miss;
 	}
 
@@ -49,11 +55,16 @@ public:
 		left_pointer = 0;
 		right_pointer = 0;
 		active_note_pointer = 0;
-		visibility = true;
+		visibility_pointer = 0;
 	}
 
 	void add_note(Note n) {
 		lane_notes.push_back(n);
+	}
+
+	void add_invisible_interval(double start, double duration) {
+		assert(duration > 0);
+		invisible_time.push_back(std::pair<double, double>(start, duration));
 	}
 
 	void sort_note() {
@@ -90,7 +101,10 @@ public:
 		std::vector<sf::RectangleShape> render_notes;
 		for (int i = left_pointer; i < right_pointer; i++) {
 			if (lane_notes[i].has_rect()) {
-				render_notes.push_back(lane_notes[i].toRect(is_paused));
+				render_notes.push_back(lane_notes[i].toBottomRect(is_paused));
+				if (lane_notes[i].get_duration() != 0) {
+					render_notes.push_back(lane_notes[i].toDurationRect(is_paused));
+				}
 			}
 			if (lane_notes[i].has_particle()) {
 				render_notes.push_back(lane_notes[i].toParticle(is_paused));
@@ -99,14 +113,20 @@ public:
 		return render_notes;
 	}
 
-	bool is_visible() const {
-		return visibility;
+	bool invisible() const {
+		if (visibility_pointer == invisible_time.size()) {
+			return false;
+		}
+		return
+			invisible_time[visibility_pointer].first <= GameWindow::Time::CURRENT_TIME &&
+			invisible_time[visibility_pointer].first + invisible_time[visibility_pointer].second >= GameWindow::Time::CURRENT_TIME;
 	}
 
 	void restart() {
 		left_pointer = 0;
 		active_note_pointer = 0;
 		right_pointer = 0;
+		visibility_pointer = 0;
 		miss = 0.0;
 		bad = 0.0;
 		good = 0.0;

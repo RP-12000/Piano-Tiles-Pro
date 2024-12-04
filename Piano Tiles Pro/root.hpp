@@ -11,6 +11,7 @@ private:
 	inline static const double ABS_VERTICAL_JUDGEMENT_SPACING = 160.0;
 	inline static const double ABS_NOTE_WIDTH = 96.0;
 	inline static const double ABS_TAP_NOTE_HEIGHT = 10.0;
+	inline static const double ABS_HOLD_NOTE_WIDTH = 10.0;
 	inline static const double ABS_NOTE_OUTLINE_THICKNESS = 2.0;
 	inline static const double ABS_PROGRESS_BAR_THICKNESS = 10.0;
 	inline static const double ABS_HORIZONTAL_JUDGEMENT_SPACING = 216.0;
@@ -58,6 +59,7 @@ public:
 		inline static double VERTICAL_JUDGEMENT_SPACING = ABS_VERTICAL_JUDGEMENT_SPACING / ABS_WINDOW_WIDTH * WINDOW_WIDTH;
 		inline static double NOTE_WIDTH = ABS_NOTE_WIDTH / ABS_WINDOW_WIDTH * WINDOW_WIDTH;
 		inline static double TAP_NOTE_HEIGHT = ABS_TAP_NOTE_HEIGHT / ABS_WINDOW_HEIGHT * WINDOW_HEIGHT;
+		inline static double HOLD_NOTE_WIDTH = ABS_HOLD_NOTE_WIDTH / ABS_WINDOW_WIDTH * WINDOW_WIDTH;
 		inline static double NOTE_OUTLINE_THICKNESS = ABS_NOTE_OUTLINE_THICKNESS / ABS_WINDOW_HEIGHT * WINDOW_HEIGHT;
 		inline static double PROGRESS_BAR_THICKNESS = ABS_PROGRESS_BAR_THICKNESS / ABS_WINDOW_HEIGHT * WINDOW_HEIGHT;
 		inline static double HORIZONTAL_JUDGEMENT_SPACING = ABS_HORIZONTAL_JUDGEMENT_SPACING / ABS_WINDOW_HEIGHT * WINDOW_HEIGHT;
@@ -73,6 +75,7 @@ public:
 	public:
 		inline static double CURRENT_TIME = 0.0;
 		inline static double PAUSED_REST_TIME = 3;
+		inline static double FPS_RENDERATION_INTERVAL = 0.1;
 	};
 
 	class JudgementLimits {
