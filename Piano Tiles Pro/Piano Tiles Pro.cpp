@@ -7,6 +7,30 @@ private:
     std::vector<std::string> current_choices;
     int level;
 
+    void print_menu() {
+        current_choices.clear();
+        std::string directory_to_search = "Charts";
+        std::string verdict = " Collection\n";
+        if (level > 0) {
+            directory_to_search += "\\" + collection_name;
+            verdict = "\n";
+        }
+        if (level > 1) {
+            directory_to_search += "\\" + song_name;
+            verdict = " Chart\n";
+        }
+        for (const auto& entry : std::filesystem::directory_iterator(directory_to_search)) {
+            if (entry.is_directory()) {
+                size_t start = entry.path().string().find_last_of("\\");
+                current_choices.push_back(entry.path().string().substr(start + 1));
+            }
+        }
+        std::cout << "0. Back\n";
+        for (int i = 0; i < current_choices.size(); i++) {
+            std::cout << i + 1 << ". " << current_choices[i] << verdict;
+        }
+    }
+
     int get_choice() {
         int choice = -1;
         while (choice<0 || choice>current_choices.size()) {
@@ -24,18 +48,7 @@ private:
     void collection_selection() {
         std::cout << "Welcome to Piano Tiles Pro v1.0.0-alpha!\n";
         std::cout << "Please select the collection you want to enter:\n";
-
-        current_choices.clear();
-        for (const auto& entry : std::filesystem::directory_iterator("Charts")) {
-            size_t start = entry.path().string().find_last_of("\\");
-            current_choices.push_back(entry.path().string().substr(start + 1));
-        }
-
-        std::cout << "0. Exit Game\n";
-        for (int i = 0; i < current_choices.size(); i++) {
-            std::cout << i + 1 << ". " << current_choices[i] << " Collection\n";
-        }
-
+        print_menu();
         int choice = get_choice();
         if (choice == 0) {
             level--;
@@ -51,18 +64,7 @@ private:
     void song_selection() {
         std::cout << "You have selected this collection: " << collection_name << '\n';
         std::cout << "Please select the song you want to play:\n";
-        
-        current_choices.clear();
-        for (const auto& entry : std::filesystem::directory_iterator("Charts\\" + collection_name)) {
-            size_t start = entry.path().string().find_last_of("\\");
-            current_choices.push_back(entry.path().string().substr(start + 1));
-        }
-
-        std::cout << "0. Back to Collection Selection\n";
-        for (int i = 0; i < current_choices.size(); i++) {
-            std::cout << i + 1 << ". " << current_choices[i] << "\n";
-        }
-
+        print_menu();
         int choice = get_choice();
         if (choice == 0) {
             level--;
@@ -78,21 +80,7 @@ private:
     void chart_selection() {
         std::cout << "You have selected this song: " << song_name << '\n';
         std::cout << "Please select the chart you want to play:\n";
-
-        current_choices.clear();
-        for (const auto& entry : std::filesystem::directory_iterator("Charts\\" + collection_name + "\\"+ song_name)) {
-            if (entry.path().string().ends_with(".txt")) {
-                size_t start = entry.path().string().find_last_of("\\");
-                size_t end = entry.path().string().find_last_of(".");
-                current_choices.push_back(entry.path().string().substr(start + 1, end - start - 1));
-            }
-        }
-        
-        std::cout << "0. Back to Song Selection\n";
-        for (int i = 0; i < current_choices.size(); i++) {
-            std::cout << i + 1 << ". " << current_choices[i] << " Chart\n";
-        }
-
+        print_menu();
         int choice = get_choice();
         if (choice == 0) {
             level--;
@@ -108,7 +96,7 @@ private:
     void method_selection() {
         std::cout << "You have selected the " << chart_name << " chart of this song: " << song_name << '\n';
         std::cout << "Please type in the method you want to view this chart\n";
-        
+
         current_choices.clear();
         current_choices.push_back("Play yourself");
         current_choices.push_back("Autoplay");
@@ -146,7 +134,7 @@ public:
             switch (level)
             {
             case -1:
-                std::cout << "Piano Tiles Pro v1.0.0, bye!\n";
+                std::cout << "Piano Tiles Pro v1.0.0-alpha, bye!\n";
                 system("pause");
                 return;
             case 0:

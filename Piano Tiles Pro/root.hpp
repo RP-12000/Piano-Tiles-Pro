@@ -113,16 +113,16 @@ public:
 
 	class GameVerdicts {
 	public:
-		inline static const std::string GAME_PAUSE_VERDICT = "Game Paused\nPress space to continue\nPress r to restart";
+		inline static const std::string GAME_PAUSE_VERDICT = "Game Paused\nPress space to continue\nPress r to restart\nPress Esc to go back";
 		inline static const std::string AUTOPLAY_VERDICT = " [Autoplay]";
-		inline static const std::string FINAL_GAME_PAUSE_VERDICT = "Press r to restart. Press Esc to go back.";
+		inline static const std::string FINAL_GAME_PAUSE_VERDICT = "Press r to restart. Press Esc to go back";
 	};
 
 	class Colors {
 	public:
 		inline static const sf::Uint8 PAUSED_OPACITY = 64;
 		inline static const sf::Uint8 IMAGE_OPACITY_FACTOR = 8;
-		inline static const std::vector<sf::Color> TAP_NOTE_COLOR = {
+		inline static const std::vector<sf::Color> TAP_NOTE_COLOR = { 
 			sf::Color(130,222,250),
 			sf::Color(130,222,250,Colors::PAUSED_OPACITY)
 		};
@@ -179,10 +179,10 @@ public:
 			sf::Keyboard::Scancode::W,
 			sf::Keyboard::Scancode::E,
 			sf::Keyboard::Scancode::R,
-			sf::Keyboard::Scancode::U,
 			sf::Keyboard::Scancode::I,
 			sf::Keyboard::Scancode::O,
-			sf::Keyboard::Scancode::P
+			sf::Keyboard::Scancode::P,
+			sf::Keyboard::Scancode::LBracket
 		};
 	};
 };

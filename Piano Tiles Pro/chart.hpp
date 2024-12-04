@@ -31,6 +31,7 @@ private:
     double total_good_until_last_miss, total_perfect_until_last_miss;
     bool is_paused, is_game_over, is_autoplay, has_restarted;
     double pause_count_down_timer;
+    bool has_updated;
 
     std::vector<bool> visible_vertical_judgement_line;
     std::vector<bool> visible_horizontal_judgement_line;
@@ -53,6 +54,9 @@ private:
         }
         if (pause_count_down_timer >= 0) {
             pause_count_down_timer -= time_elapsed;
+            if (pause_count_down_timer <= 0) {
+                is_paused = false;
+            }
         }
         if (is_game_over) {
             TextRenderTime::stage_timer[TextRenderTime::current_stage] += time_elapsed;
@@ -91,6 +95,47 @@ private:
         }
     }
 
+    void process_key_stroke(sf::Event a){
+        if (a.type == sf::Event::KeyPressed) {
+            if (a.key.scancode == sf::Keyboard::Scancode::Space) {
+                if (is_paused && pause_count_down_timer <= 0) {
+                    pause_count_down_timer = GameWindow::Time::PAUSED_REST_TIME;
+                }
+                else if (!is_paused) {
+                    is_paused = true;
+                    music.pause();
+                }
+            }
+            if (a.key.scancode == sf::Keyboard::Scancode::R) {
+                if ((is_game_over || is_paused) && pause_count_down_timer <= 0) {
+                    restart();
+                }
+            }
+            if (a.key.scancode == sf::Keyboard::Scancode::Escape) {
+                if ((is_game_over || is_paused) && pause_count_down_timer <= 0) {
+                    window.close();
+                    return;
+                }
+            }
+            if (!is_autoplay) {
+                if (!is_paused && !is_game_over) {
+                    for (Lane& l : lanes) {
+                        l.update(a);
+                    }
+                    has_updated = true;
+                }
+            }
+        }
+        else if (a.type == sf::Event::KeyReleased) {
+            if (!is_autoplay && !is_paused && !is_game_over) {
+                for (Lane& l : lanes) {
+                    l.update(a);
+                }
+                has_updated = true;
+            }
+        }
+    }
+
     void restart() {
         music.stop();
         for (Lane& l : lanes) {
@@ -110,6 +155,7 @@ private:
         is_paused = false;
         is_game_over = false;
         has_restarted = true;
+        has_updated = false;
         pause_count_down_timer = -0.1;
         TextRenderTime::current_stage = 0;
         for (double& t : TextRenderTime::stage_timer) {
@@ -377,36 +423,7 @@ public:
                     is_paused = true;
                     music.pause();
                 }
-                else if (event.type == sf::Event::KeyPressed) {
-                    switch (event.key.scancode)
-                    {
-                    case sf::Keyboard::Scan::R:
-                        if (is_paused || is_game_over) {
-                            restart();
-                        }
-                        break;
-                    case sf::Keyboard::Scan::Space:
-                        if (is_paused) {
-                            pause_count_down_timer = 3;
-                        }
-                        else {
-                            is_paused = true;
-                            music.pause();
-                        }
-                        break;
-                    case sf::Keyboard::Scan::Escape:
-                        if (is_game_over) {
-                            window.close();
-                            return;
-                        }
-                        else {
-                            break;
-                        }
-                    default:
-                        break;
-                    }
-                }
-                else;
+                process_key_stroke(event);
             }
             if (!is_paused && !is_game_over) {
                 if (
@@ -457,40 +474,7 @@ public:
                     is_paused = true;
                     music.pause();
                 }
-                else if (event.type == sf::Event::KeyPressed) {
-                    if (!is_paused && !is_game_over) {
-                        if (event.key.scancode == sf::Keyboard::Scancode::Space) {
-                            is_paused = true;
-                            music.pause();
-                        }
-                        else {
-                            for (Lane& l : lanes) {
-                                l.update(event);
-                            }
-                            has_updated = true;
-                        }
-                    }
-                    else if (event.key.scancode == sf::Keyboard::Scancode::R) {
-                        restart();
-                    }
-                    else if (!is_game_over && event.key.scancode == sf::Keyboard::Scancode::Space) {
-                        pause_count_down_timer = 2.999999;
-                    }
-                    else if (is_game_over && event.key.scancode == sf::Keyboard::Scancode::Escape) {
-                        window.close();
-                        return;
-                    }
-                    else;
-                }
-                else if (event.type == sf::Event::KeyReleased) {
-                    if (!is_paused && !is_game_over) {
-                        for (Lane& l : lanes) {
-                            l.update(event);
-                        }
-                        has_updated = true;
-                    }
-                }
-                else;
+                process_key_stroke(event);
             }
             if (!is_paused && !is_game_over) {
                 if (
