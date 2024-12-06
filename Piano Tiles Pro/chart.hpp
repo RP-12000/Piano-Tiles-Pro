@@ -173,6 +173,12 @@ private:
         for (double& t : TextRenderTime::stage_timer) {
             t = 0.0;
         }
+        background.setColor(sf::Color(255, 255, 255, GameWindow::Colors::IMAGE_OPACITY));
+        background.setScale(sf::Vector2f(
+            (double)GameWindow::GET_INITIAL_VIDEO_MODE().width / (double)Illustration::illustration.getSize().x,
+            (double)GameWindow::GET_INITIAL_VIDEO_MODE().height / (double)Illustration::illustration.getSize().y
+        ));
+        background.setPosition(0, 0);
     }
 
     void update_score() {
@@ -330,15 +336,8 @@ public:
                 Illustration::illustration.create(GameWindow::GET_INITIAL_VIDEO_MODE().width, GameWindow::GET_INITIAL_VIDEO_MODE().height);
             }
         }
-
         chart_illustration.loadFromImage(Illustration::illustration);
         background.setTexture(chart_illustration);
-        background.setColor(sf::Color(255, 255, 255, GameWindow::Colors::IMAGE_OPACITY));
-        background.setScale(sf::Vector2f(
-            (double)GameWindow::GET_INITIAL_VIDEO_MODE().width / (double)Illustration::illustration.getSize().x,
-            (double)GameWindow::GET_INITIAL_VIDEO_MODE().height / (double)Illustration::illustration.getSize().y
-        ));
-        background.setPosition(0, 0);
 
         std::ifstream chart("Charts\\" + collection_name + "\\" + song_name + "\\" + d + "\\" + "chart.txt", std::ios::in);
         if (!chart.is_open()) {
