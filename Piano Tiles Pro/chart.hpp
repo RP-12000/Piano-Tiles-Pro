@@ -14,10 +14,9 @@ private:
     sf::SoundBuffer buffer;
     sf::Sound music;
     std::vector<Lane> lanes;
-
-    sf::Image chart_image, result_chart_image;
-    sf::Texture chart_illustration, result_chart_illustration;
-    sf::Sprite background, result_background;
+    
+    sf::Texture chart_illustration;
+    sf::Sprite background;
 
     std::string music_name, composer, chart_design, illustration;
     double chart_constant;
@@ -64,6 +63,12 @@ private:
         }
         if (is_game_over) {
             TextRenderTime::stage_timer[TextRenderTime::current_stage] += last_frame_time;
+            if (
+                TextRenderTime::stage_timer[TextRenderTime::current_stage] >
+                TextRenderTime::stage_duration[TextRenderTime::current_stage] &&
+                TextRenderTime::current_stage < TextRenderTime::stage_duration.size() - 1) {
+                TextRenderTime::current_stage++;
+            }
         }
     }
 
@@ -271,17 +276,19 @@ private:
 
     void draw_result_screen() {
         window.clear();
-        window.draw(result_background);
-        (is_autoplay)
-            ? (window.draw(GameText::Passive::song_name_text.to_text(music_name + GameWindow::GameVerdicts::AUTOPLAY_VERDICT)))
-            : (window.draw(GameText::Passive::song_name_text.to_text(music_name)));
-        window.draw(GameText::Passive::difficulty_text.to_text(difficulty));
-        if (
-            TextRenderTime::stage_timer[TextRenderTime::current_stage] >
-            TextRenderTime::stage_duration[TextRenderTime::current_stage] &&
-            TextRenderTime::current_stage < TextRenderTime::stage_duration.size() - 1) {
-            TextRenderTime::current_stage++;
+        if (TextRenderTime::current_stage == 0) {
+            background.setColor(sf::Color(
+                255, 255, 255,
+                std::min(255.0, 255.0 / TextRenderTime::stage_duration[0] * TextRenderTime::stage_timer[0])
+            ));
         }
+        background.setScale(sf::Vector2f(
+            Illustration::result_image_width / (double)Illustration::illustration.getSize().x,
+            Illustration::result_image_height / (double)Illustration::illustration.getSize().y
+        ));
+        background.setPosition(Illustration::result_image_position);
+        window.draw(background);
+
         text_to_be_drawn.clear();
         switch (TextRenderTime::current_stage) {
         case 0:
@@ -299,6 +306,11 @@ private:
         default:
             break;
         }
+
+        (is_autoplay)
+            ? (window.draw(GameText::Passive::song_name_text.to_text(music_name + GameWindow::GameVerdicts::AUTOPLAY_VERDICT)))
+            : (window.draw(GameText::Passive::song_name_text.to_text(music_name)));
+        window.draw(GameText::Passive::difficulty_text.to_text(difficulty));
         render_result_text();
         window.display();
     }
@@ -311,43 +323,22 @@ public:
         }
         music.setBuffer(buffer);
 
-        if (!chart_image.loadFromFile("Charts\\" + collection_name + "\\" + song_name + "\\illustration.png")) {
-            if (!chart_image.loadFromFile("Charts\\" + collection_name + "\\" + song_name + "\\illustration.jpg")) {
+        if (!Illustration::illustration.loadFromFile("Charts\\" + collection_name + "\\" + song_name + "\\illustration.png")) {
+            if (!Illustration::illustration.loadFromFile("Charts\\" + collection_name + "\\" + song_name + "\\illustration.jpg")) {
                 std::cerr << "Warning: illustration file corrupted or not found.\n";
                 std::cerr << "Using default black screen for illustration\n";
-                chart_image.create(GameWindow::GET_INITIAL_VIDEO_MODE().width, GameWindow::GET_INITIAL_VIDEO_MODE().height);
+                Illustration::illustration.create(GameWindow::GET_INITIAL_VIDEO_MODE().width, GameWindow::GET_INITIAL_VIDEO_MODE().height);
             }
         }
 
-        result_chart_image = chart_image;
-        for (int i = 0; i < chart_image.getSize().x; i++) {
-            for (int j = 0; j < chart_image.getSize().y; j++) {
-                chart_image.setPixel(
-                    i, j,
-                    sf::Color(
-                        chart_image.getPixel(i, j).r,
-                        chart_image.getPixel(i, j).g,
-                        chart_image.getPixel(i, j).b,
-                        chart_image.getPixel(i, j).a / GameWindow::Colors::IMAGE_OPACITY_FACTOR
-                    )
-                );
-            }
-        }
-        chart_illustration.loadFromImage(chart_image);
+        chart_illustration.loadFromImage(Illustration::illustration);
         background.setTexture(chart_illustration);
+        background.setColor(sf::Color(255, 255, 255, GameWindow::Colors::IMAGE_OPACITY));
         background.setScale(sf::Vector2f(
-            (double)GameWindow::GET_INITIAL_VIDEO_MODE().width / (double)chart_image.getSize().x,
-            (double)GameWindow::GET_INITIAL_VIDEO_MODE().height / (double)chart_image.getSize().y
+            (double)GameWindow::GET_INITIAL_VIDEO_MODE().width / (double)Illustration::illustration.getSize().x,
+            (double)GameWindow::GET_INITIAL_VIDEO_MODE().height / (double)Illustration::illustration.getSize().y
         ));
         background.setPosition(0, 0);
-
-        result_chart_illustration.loadFromImage(result_chart_image);
-        result_background.setTexture(result_chart_illustration);
-        result_background.setScale(sf::Vector2f(
-            GameText::Image::result_image_width / (double)result_chart_image.getSize().x,
-            GameText::Image::result_image_height / (double)result_chart_image.getSize().y
-        ));
-        result_background.setPosition(GameText::Image::result_image_position);
 
         std::ifstream chart("Charts\\" + collection_name + "\\" + song_name + "\\" + d + "\\" + "chart.txt", std::ios::in);
         if (!chart.is_open()) {

@@ -124,7 +124,7 @@ public:
 	class Colors {
 	public:
 		inline static const sf::Uint8 PAUSED_OPACITY = 64;
-		inline static const sf::Uint8 IMAGE_OPACITY_FACTOR = 8;
+		inline static const sf::Uint8 IMAGE_OPACITY = 32;
 		inline static const std::vector<sf::Color> TAP_NOTE_COLOR = { 
 			sf::Color(130,222,250),
 			sf::Color(130,222,250,Colors::PAUSED_OPACITY)

@@ -139,13 +139,31 @@ public:
             return GameText::Passive::grade_texts[2].to_text("V");
         }
     };
+};
 
-    class Image {
-    public:
-        inline static const double result_image_width = 1280;
-        inline static const double result_image_height = 900;
-        inline static const sf::Vector2f result_image_position = sf::Vector2f(210, 440);
-    };
+class Illustration {
+public:
+    inline static sf::Image illustration;
+
+    static void set_image_alpha(sf::Uint8 new_a) {
+        for (int i = 0; i < illustration.getSize().x; i++) {
+            for (int j = 0; j < illustration.getSize().y; j++) {
+                illustration.setPixel(
+                    i, j,
+                    sf::Color(
+                        illustration.getPixel(i, j).r,
+                        illustration.getPixel(i, j).g,
+                        illustration.getPixel(i, j).b,
+                        new_a
+                    )
+                );
+            }
+        }
+    }
+
+    inline static const double result_image_width = 1280;
+    inline static const double result_image_height = 900;
+    inline static const sf::Vector2f result_image_position = sf::Vector2f(210, 440);
 };
 
 class ResultScreenRenderation {
@@ -172,6 +190,8 @@ private:
 public:
     static std::vector<sf::Text> first_stage() {
         std::vector<sf::Text> texts;
+        GameText::Passive::song_name_text.set_alpha(calc_alpha(0));
+        GameText::Passive::difficulty_text.set_alpha(calc_alpha(0));
         GameText::Passive::score_text.set_alpha(calc_alpha(0));
         GameText::Passive::perfect_text.set_alpha(calc_alpha(0));
         GameText::Passive::good_text.set_alpha(calc_alpha(0));

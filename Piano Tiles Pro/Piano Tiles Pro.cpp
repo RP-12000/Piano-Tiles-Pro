@@ -156,6 +156,14 @@ public:
     }
 };
 
+double Lane::miss = 0;
+double Lane::bad = 0;
+double Lane::good = 0;
+double Lane::perfect = 0;
+double Lane::early = 0;
+double Lane::late = 0;
+double Lane::total = 0;
+
 int main()
 {
     Selection_System s;
