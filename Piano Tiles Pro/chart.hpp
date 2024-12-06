@@ -336,6 +336,7 @@ public:
                 Illustration::illustration.create(GameWindow::GET_INITIAL_VIDEO_MODE().width, GameWindow::GET_INITIAL_VIDEO_MODE().height);
             }
         }
+
         chart_illustration.loadFromImage(Illustration::illustration);
         background.setTexture(chart_illustration);
 
