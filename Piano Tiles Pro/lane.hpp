@@ -1,3 +1,4 @@
+
 #include "note.hpp"
 #include <cassert>
 
@@ -89,7 +90,7 @@ public:
 		}
 		update_pointers();
 	}
-	
+
 	void autoplay() {
 		if (active_note_pointer < right_pointer) {
 			lane_notes[active_note_pointer].autoplay();
@@ -137,11 +138,3 @@ public:
 			n.reset();
 	}
 };
-
-double Lane::miss = 0.0;
-double Lane::bad = 0.0;
-double Lane::good = 0.0;
-double Lane::early = 0.0;
-double Lane::late = 0.0;
-double Lane::perfect = 0.0;
-double Lane::total = 0.0;

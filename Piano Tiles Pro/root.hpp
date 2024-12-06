@@ -11,7 +11,7 @@ private:
 	inline static const double ABS_VERTICAL_JUDGEMENT_SPACING = 160.0;
 	inline static const double ABS_NOTE_WIDTH = 96.0;
 	inline static const double ABS_TAP_NOTE_HEIGHT = 10.0;
-	inline static const double ABS_HOLD_NOTE_WIDTH = 10.0;
+	inline static const double ABS_HOLD_NOTE_WIDTH = 20.0;
 	inline static const double ABS_NOTE_OUTLINE_THICKNESS = 2.0;
 	inline static const double ABS_PROGRESS_BAR_THICKNESS = 10.0;
 	inline static const double ABS_HORIZONTAL_JUDGEMENT_SPACING = 216.0;

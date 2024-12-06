@@ -134,6 +134,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="chart.hpp" />
     <ClCompile Include="Piano Tiles Pro.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -141,7 +142,6 @@
     <ClInclude Include="lane.hpp" />
     <ClInclude Include="root.hpp" />
     <ClInclude Include="note.hpp" />
-    <ClInclude Include="chart.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

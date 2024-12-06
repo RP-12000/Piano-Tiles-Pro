@@ -59,6 +59,7 @@ private:
             pause_count_down_timer -= last_frame_time;
             if (pause_count_down_timer <= 0) {
                 is_paused = false;
+                has_restarted = true;
             }
         }
         if (is_game_over) {
@@ -99,7 +100,7 @@ private:
         window.draw(GameText::Active::fps.to_text(std::format("{:.0f}", 1.0 / last_frame_time) + " FPS"));
     }
 
-    void process_key_stroke(sf::Event a){
+    void process_key_stroke(sf::Event a) {
         if (a.type == sf::Event::KeyPressed) {
             if (a.key.scancode == sf::Keyboard::Scancode::Space) {
                 if (is_paused && pause_count_down_timer <= 0) {
@@ -169,14 +170,14 @@ private:
         }
     }
 
-    void update_score(){
+    void update_score() {
         if (Lane::miss > last_miss || Lane::bad > last_bad) {
             total_good_until_last_miss = Lane::good;
             total_perfect_until_last_miss = Lane::perfect;
         }
         current_combo = Lane::good + Lane::perfect - total_good_until_last_miss - total_perfect_until_last_miss;
         max_combo = std::max(max_combo, current_combo);
-                 acc = Lane::perfect / note_count + GameWindow::ScoreCalculations::GOOD_SCORE_PERCENTAGE * Lane::good / note_count;
+        acc = Lane::perfect / note_count + GameWindow::ScoreCalculations::GOOD_SCORE_PERCENTAGE * Lane::good / note_count;
         current_score = (int)std::round(
             1000000.0 * (acc * (1 - GameWindow::ScoreCalculations::COMBO_PERCENTAGE) + max_combo / note_count * GameWindow::ScoreCalculations::COMBO_PERCENTAGE)
         );
@@ -216,12 +217,12 @@ private:
         );
 
         for (const sf::RectangleShape& n : notes_to_be_drawn) {
-                window.draw(n);
+            window.draw(n);
         }
 
         sf::Color jc = GameWindow::Colors::JUDGEMENT_LINE_COLOR[is_paused][2];
         if (Lane::miss + Lane::bad + Lane::good == 0) {
-        jc = GameWindow::Colors::JUDGEMENT_LINE_COLOR[is_paused][0];
+            jc = GameWindow::Colors::JUDGEMENT_LINE_COLOR[is_paused][0];
         }
         else if (Lane::miss + Lane::bad == 0) {
             jc = GameWindow::Colors::JUDGEMENT_LINE_COLOR[is_paused][1];
@@ -277,7 +278,7 @@ private:
         window.draw(GameText::Passive::difficulty_text.to_text(difficulty));
         if (
             TextRenderTime::stage_timer[TextRenderTime::current_stage] >
-            TextRenderTime::stage_duration[TextRenderTime::current_stage] && 
+            TextRenderTime::stage_duration[TextRenderTime::current_stage] &&
             TextRenderTime::current_stage < TextRenderTime::stage_duration.size() - 1) {
             TextRenderTime::current_stage++;
         }
@@ -301,7 +302,7 @@ private:
         render_result_text();
         window.display();
     }
-    
+
 public:
     Chart(std::string collection_name, std::string song_name, std::string d) {
         if (!buffer.loadFromFile("Charts\\" + collection_name + "\\" + song_name + "\\audio.mp3")) {
@@ -354,14 +355,14 @@ public:
             abort();
         }
         music_name = song_name;
-        chart>>composer>>chart_design>>illustration>>chart_constant>>note_count;
+        chart >> composer >> chart_design >> illustration >> chart_constant >> note_count;
         difficulty = d + " Lv. " + std::to_string((int)(chart_constant));
 
         std::vector<std::tuple<double, int, double, double, double, double>> raw((int)note_count);
-        for(int i=0; i<(int)note_count; i++) {
-            chart 
-                >> std::get<0>(raw[i]) >> std::get<1>(raw[i]) 
-                >> std::get<2>(raw[i]) >> std::get<3>(raw[i]) 
+        for (int i = 0; i < (int)note_count; i++) {
+            chart
+                >> std::get<0>(raw[i]) >> std::get<1>(raw[i])
+                >> std::get<2>(raw[i]) >> std::get<3>(raw[i])
                 >> std::get<4>(raw[i]) >> std::get<5>(raw[i]);
         }
         std::sort(raw.begin(), raw.end());
@@ -441,7 +442,7 @@ public:
             }
             if (!is_paused && !is_game_over) {
                 if (
-                    GameWindow::Time::CURRENT_TIME >= GameWindow::JudgementLimits::MUSIC_DIFFERENCE && 
+                    GameWindow::Time::CURRENT_TIME >= GameWindow::JudgementLimits::MUSIC_DIFFERENCE &&
                     music.getStatus() != sf::Sound::Playing &&
                     has_restarted
                     ) {

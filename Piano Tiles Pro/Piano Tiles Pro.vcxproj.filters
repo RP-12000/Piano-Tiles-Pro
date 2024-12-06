@@ -18,15 +18,15 @@
     <ClCompile Include="Piano Tiles Pro.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="chart.hpp">
+      <Filter>头文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="note.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="root.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="chart.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="lane.hpp">

@@ -1,3 +1,4 @@
+
 #include <vector>
 #include <format>
 #include <SFML/Graphics.hpp>
@@ -37,7 +38,7 @@ class TextRenderTime {
 public:
     inline static int current_stage = 0;
     inline static const std::vector<double> stage_duration = { 2, 1.5, 0.5, 0.5 };
-    inline static std::vector<double> stage_timer = {0.0, 0.0, 0.0, 0.0};
+    inline static std::vector<double> stage_timer = { 0.0, 0.0, 0.0, 0.0 };
 };
 
 class GameText {
@@ -155,7 +156,7 @@ private:
     }
 
     static std::string calc_number(int stage, double target, bool is_acc = false) {
-        if(is_acc){
+        if (is_acc) {
             return std::format(
                 "{:.2f}",
                 std::min(target, target / TextRenderTime::stage_duration[stage] * TextRenderTime::stage_timer[stage])
@@ -195,7 +196,7 @@ public:
     static std::vector<sf::Text> second_stage(int current_score, double max_combo, double acc, double note_count) {
         std::vector<sf::Text> texts;
         texts.push_back(GameText::Passive::score_text.to_text(GameWindow::ScoreCalculations::score_to_string(calc_number(1, current_score))));
-        texts.push_back(GameText::Passive::perfect_text.to_text(calc_number(1, Lane::perfect)+" Perfect"));
+        texts.push_back(GameText::Passive::perfect_text.to_text(calc_number(1, Lane::perfect) + " Perfect"));
         texts.push_back(GameText::Passive::good_text.to_text(calc_number(1, Lane::good) + " Good"));
         texts.push_back(GameText::Passive::bad_text.to_text(calc_number(1, Lane::bad) + " Bad"));
         texts.push_back(GameText::Passive::miss_text.to_text(calc_number(1, Lane::miss) + " Miss"));
